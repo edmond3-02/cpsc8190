@@ -5,7 +5,6 @@
 #include <string>
 #include <iostream>
 
-//#include "ImgProc.h"
 #include "Color.h"
 #include "Fields.h"
 #include "Vector.h"
@@ -21,8 +20,6 @@ using namespace lux;
 
 
 bool write( const std::string& filename, float* img_data, int Nx, int Ny, int Nc );
-void frame( int frame, std::string prefix, const ScalarField& density, const ColorField& Cm );
-void frame2( int frame, std::string prefix, RenderData* d, const ScalarField& density, const ColorField& Cm );
 void makeMcTyson(ScalarField& density, ColorField& color);
 
 int main(int argc, char *argv[])
@@ -30,7 +27,7 @@ int main(int argc, char *argv[])
 
 	ScalarGrid grid = ScalarGrid(new SGrid<float>);
 
-	int gridRes = 20;
+	int gridRes = 40;
 	float gridLength = 1.0;
 
 	grid->init(gridRes, gridRes, gridRes, gridLength, gridLength, gridLength, Vector(-gridLength/2,-gridLength/2,-gridLength/2) );
@@ -49,7 +46,7 @@ int main(int argc, char *argv[])
 	//WriteVolumeGrid(*grid, outfile);
 	//outfile.close();
 
-	density = volumize(grid);
+	//density = volumize(grid);
 
 	ColorField color = constant(Color(1,1,1,0));
 
@@ -57,6 +54,19 @@ int main(int argc, char *argv[])
 	RenderData d;
 	d.densityField = density;
 	d.colorField = color;
+
+
+	d.lightPosition = {Vector(1,0,0),  Vector(0,1,0),  Vector(-1,0,0)};
+	d.lightColor    = {Color(4,0,0,1), Color(0,4,0,1), Color(0,4,4,0)};
+	for (int i=0; i<d.lightPosition.size();i++)
+	{
+
+		ScalarGrid dsm = ScalarGrid(new SGrid<float>);
+		dsm->init(gridRes, gridRes, gridRes, gridLength, gridLength, gridLength, Vector(-gridLength/2,-gridLength/2,-gridLength/2) );
+		dsm->setDefVal(0.0);
+	
+		d.dsmField.push_back(RayMarchDSMAccumulation(&d, density, d.lightPosition[i], d.ds, dsm));
+	}
 
 	float cam_dist = 3.5;
 	float frust_len = 2;
@@ -76,9 +86,9 @@ int main(int argc, char *argv[])
 		sprintf(padded_num, "%0*d", 5, i);
 		std::string framename = prefix + "_" + padded_num;
 		
-		ProgressMeter progress(d.Ny(), framename);
+		ProgressMeter progress(d.Ny()*d.Nx(), framename);
 
-		RenderFrame(&d, image);
+		RenderFrame(&d, progress, image, RayMarchDSM);
 
 		write("images/" + framename + ".exr", image, d.Nx(), d.Ny(), d.Nc());
 	}
@@ -99,80 +109,6 @@ bool write( const std::string& filename, float* img_data, int Nx, int Ny, int Nc
   out->close();
   return true;
 
-}
-
-void frame2( int frame, std::string prefix, RenderData* d, const ScalarField& density, const ColorField& Cm )
-{
-
-
-}
-
-void frame( int frame, std::string prefix, const ScalarField& density, const ColorField& Cm )
-{
-
-
-	int Nx=1920, Ny=1080, Nc=4;
-	float Tmin = 0.01;
-	float ds   = 0.01;
-	float kappa = 2.0;
-
-	char padded_num[6];
-	sprintf(padded_num, "%0*d", 5, frame);
-	std::string framename = prefix + "_" + padded_num;
-
-	int Nsize = (long)Nx * (long)Ny * (long)Nc;
-	float* image = new float[Nsize];
-
-	ProgressMeter progress(Ny, framename);
-
-	Camera camera;
-	float cam_dist = 3.5;
-	float frust_len = 2;
-
-	Vector eye(cam_dist*sin((frame/120.0)*2*3.14159265359), 0.2, cam_dist*cos((frame/120.0)*2*3.14159265359)); 
-	Vector up(0.0, 1.0, 0.0);
-	camera.setEyeViewUp(eye, -eye, up);
-
-	//camera.setEyeViewUp(eye, -eye, up);
-
-	for(int j=0;j<Ny;j++)
-	{
-		//progress.update();
-		double y = (double)j/double(Ny);
-	#pragma omp parallel for
-		for(int i=0;i<Nx;i++)
-		{
-			double x = (double)i/double(Nx);
-			Vector direction = camera.view(x,y);
-			double T = 1;
-			Color L(0,0,0,0);
-			// Calculate snear and sfar ...
-			double snear = cam_dist - frust_len;
-			double sfar = cam_dist + frust_len;
-			double s = snear;
-			Vector X = camera.eye() + direction*s;
-			while( s < sfar && T > Tmin )
-			{
-				float den = density->eval(X);
-				if( den > 0.0 )
-				{
-					float dT = exp( -ds * kappa * den );
-					L += Cm->eval(X) * (1-dT) * T / kappa;
-					T *= dT;
-				}
-				X += direction * ds;
-				s += ds;
-			}
-			L[3] = 1;//-T; // set the alpha channel to the opacity
-			
-			for(int c=0; c<Nc; c++)
-			{
-				image[c + Nc*(i + Nx*j)] = L[c];
-			}
-		}
-	}
-	
-	write("images/" + framename + ".exr", image, Nx, Ny, Nc);
 }
 
 void makeMcTyson(ScalarField& density, ColorField& color)

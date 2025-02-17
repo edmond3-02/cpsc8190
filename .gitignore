@@ -1,3 +1,5 @@
 models/
 images/
 movies/
+**.o
+**.swp

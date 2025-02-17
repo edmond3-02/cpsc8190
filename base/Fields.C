@@ -11,6 +11,7 @@ using namespace std;
 namespace lux
 {
 
+ScalarField ScalarField::operator*( const float e2 ) { return multiply(*this, e2); }
 
 const float  evaluate( const ScalarField& v, const Vector& P ) { return v->eval(P); }
 const Vector evaluate( const VectorField& v, const Vector& P ) { return v->eval(P); }

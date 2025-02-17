@@ -335,7 +335,7 @@ void ReadVolumeGrid(SGrid<T>& grid, ifstream& out)
        out.read((char *)&j, sizeof(int));
        out.read((char *)&k, sizeof(int));
        out.read((char *)&value, sizeof(T));
-       grid.set(value, i, j, k);
+       grid.set(i, j, k, value);
    }
 }
  

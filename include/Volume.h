@@ -239,6 +239,7 @@ class ScalarField : public ScalarFieldBase
     ScalarField operator-( const ScalarField& e2 );
     ScalarField operator-();
     ScalarField operator*( const ScalarField& e2 );
+    ScalarField operator*( const float e2 );
     ScalarField operator/( const ScalarField& e2 );
     ScalarField operator^(  const ScalarField& e2 );
     ScalarField operator&&( const ScalarField& e2 );

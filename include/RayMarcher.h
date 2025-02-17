@@ -2,6 +2,7 @@
 #define __RAYMARCHER_H__
  
 #include <vector>
+#include <functional>
  
 #include "Vector.h"
 #include "Color.h"
@@ -15,6 +16,7 @@
 //#include "Image.h"
 //#include "UniformPRN.h"
 #include "Camera.h"
+#include "ProgressMeter.h"
  
 namespace lux
 {
@@ -81,16 +83,18 @@ void SetColorField(  RenderData* d, const ColorField& field );
 //void AddBoundingBoxes( RenderData *d, const std::vector<AABB>& boxes );
 
 
-void RenderFrame(const RenderData* d, float* image);
+void RenderFrame(const RenderData* d, ProgressMeter& pm, float* image, std::function<void(const RenderData*, const Vector&, Color&)> Render );
 
-Color RayMarchEmission(const RenderData* d, const Vector& direction);
+void RayMarchEmission(const RenderData* d, const Vector& direction, Color& L);
+
+void RayMarchDSM(const RenderData* d, const Vector& direction, Color& L);
  
-void RayMarchDSMAccumulation( const ScalarField& densityField, 
-                              const Vector& lightPosition, 
-                              float ds,
-                              ScalarGrid& dsmField
-                            );
- 
+ScalarField RayMarchDSMAccumulation( 	const RenderData* d, 
+					const ScalarField& densityField, 
+					const Vector& lightPosition, 
+					float ds,
+					ScalarGrid& dsmField);
+
 void RayMarchDSMAccumulation( const RenderData& input, 
                               const Vector& lightPosition, 
                               ScalarGrid& dsmField
