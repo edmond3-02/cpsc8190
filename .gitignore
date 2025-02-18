@@ -2,4 +2,4 @@ models/
 images/
 movies/
 **.o
-**.swp
+**.*.swp
