@@ -227,7 +227,7 @@ class Mesh : public MeshBase
  
 };
  
-Mesh createEmptyMesh();
+Mesh createEmptyMesh(); 
 const size_t nbMeshVertices(const Mesh& m);
 const size_t nbMeshNormals(const Mesh& m);
 const size_t nbMeshTextureCoordinates(const Mesh& m);
@@ -367,8 +367,8 @@ void Blur( VolumeGrid<U>& g )
    }
 }
  
+ */
 }
  
- */
  
 #endif

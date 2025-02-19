@@ -4,8 +4,8 @@
 #include <cmath>
 #include "Volume.h"
 #include "LinearAlgebra.h"
-#include "Noise.h"
-#include "PerlinNoise.h"
+//#include "Noise.h"
+//#include "PerlinNoise.h"
  
 namespace lux
 {

@@ -13,6 +13,8 @@
 #include "ProgressMeter.h"
 #include "Stamp.h"
 #include "RayMarcher.h"
+#include "ObjParser.h"
+#include "VolumeGeometry.h"
 
 #include <OpenImageIO/imageio.h>
 
@@ -41,6 +43,9 @@ int main(int argc, char *argv[])
 	StampField(grid, density);
 
 
+	ObjParser parser;
+	Mesh mesh = createEmptyMesh();
+	parser.load("models/bunny/bunny.obj", mesh);
 
 	//ofstream outfile("volume.txt");
 	//WriteVolumeGrid(*grid, outfile);
@@ -56,8 +61,8 @@ int main(int argc, char *argv[])
 	d.colorField = color;
 
 
-	d.lightPosition = {Vector(1,0,0),  Vector(0,1,0),  Vector(-1,0,0)};
-	d.lightColor    = {Color(4,0,0,1), Color(0,4,0,1), Color(0,4,4,0)};
+	d.lightPosition = {Vector(1,0,0),  Vector(0,-1,1),  Vector(-1,0,0)};
+	d.lightColor    = {Color(2,0,0,1), Color(0,2,0,1), Color(0,0,2,0)};
 	for (int i=0; i<d.lightPosition.size();i++)
 	{
 

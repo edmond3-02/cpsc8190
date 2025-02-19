@@ -11,7 +11,9 @@ OFILES = base/Matrix.o \
 	 base/ImplicitMatrixShapes.o \
 	 base/Stamp.o \
 	 base/SparseGrid.o \
-	 base/RayMarcher.o
+	 base/RayMarcher.o \
+	 base/ObjParser.o \
+	 base/VolumeGeometry.o
 
 AFILES = $(OFILES)
 
