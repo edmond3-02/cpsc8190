@@ -100,6 +100,7 @@ void StampBlurredWisps( SparseGrid& grid, SparseColorGrid& cgrid, const Vector& 
 
 void StampField( VolumeGrid<float>& grid, Volume<float>* field );
 void StampField( ScalarGrid& grid, ScalarField& field );
+void StampField( ScalarGrid& grid, ScalarField& field, int bandwidth);
  
 /* 
 void StampPyro(VolumeGrid<float>& grid, VolumeGrid<Color>& cgrid, const Particle& part );

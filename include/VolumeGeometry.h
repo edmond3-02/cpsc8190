@@ -21,7 +21,7 @@ class TriangleGeometry
   public:
  
     TriangleGeometry():
-      llc   (Vector(0,0,0)),
+      llc   (Vector(10000,10000,10000)),
       urc   (Vector(0,0,0)),
       scal (1.0)
    {}

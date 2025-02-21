@@ -5,12 +5,13 @@
 #include <string>
 
 #include "Fields.h"
+#include "VolumeGeometry.h"
 
 using namespace lux;
 
+void makeObjVolume(std::string filename, ScalarField& density, Mesh& mesh, int gridRes=50);
 
-void makeMcTyson(ScalarField& density, ColorField& color);
+void makeTikeMyson(ScalarField& density, ColorField& color);
 
-void makeObjVolume(std::string filename);
 
 #endif

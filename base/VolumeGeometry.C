@@ -75,7 +75,7 @@ void RayMarchLevelSet( const Mesh& geom, ScalarGrid& lsgrid, const int bandwidth
 	}
 
 	
-	//ProgressMeter  SetSignProg(lsgrid->ny(), "Set signs");
+	ProgressMeter  SetSignProg(lsgrid->ny(), "Set signs");
 
 	// ITERATE GRID POINTS
 	for(int y=0; y<lsgrid->ny(); y++)
@@ -87,8 +87,7 @@ void RayMarchLevelSet( const Mesh& geom, ScalarGrid& lsgrid, const int bandwidth
 
 			vector<float> intersections = FindAllIntersections(geom, lsgrid->evalP(x,y,0), Vector(0,0,1).unitvector());
 			int intercount = 0;
-// DEBUG
-//				std::cout << intersections.size()<<" ";
+			//std::cout << intersections.size() << " ";
 
 			for(int z=0; z<lsgrid->nz(); z++)
 			{
@@ -105,30 +104,24 @@ void RayMarchLevelSet( const Mesh& geom, ScalarGrid& lsgrid, const int bandwidth
 				if(lsgrid->goodBlock(x,y,z) || (intercount%2) == 1)   
 				lsgrid->set(x, y, z, val * std::pow(-1, 1+intercount) );
 
-
 			}
 		}
+		//std::cout << std::endl;
 
-//		std::cout << std::endl;
 	}
 
 	lsgrid->setDefVal(-100000);
 
 /*
-	int x = lsgrid->nx()/2;
 	for(int y=0; y<lsgrid->ny(); y++)
 	{
-		for(int z=0; z<lsgrid->nz(); z++)
+		for(int x=0; x<lsgrid->nx(); x++)
 		{
-			if(z<10) continue;
-			float val = lsgrid->get(x, y, z);
-			if(val == std::abs(lsgrid->getDefVal())) std::cout << "++++ ";
-			else if(val == lsgrid->getDefVal()) std::cout << "---- ";
-			else std::cout << std::fixed << std::setprecision(3) << val << " ";
-
-
+			float val = lsgrid->get(x,y,20);
+			if(std::abs(val) != 100000) std::cout <<std::fixed<<std::setprecision(3) << val << " ";
+			else std::cout << "++++ ";
 		}
-		std::cout << std::endl;
+		std::cout <<std::endl;
 	}
 */
 }

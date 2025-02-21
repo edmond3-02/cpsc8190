@@ -2,8 +2,40 @@
 
 #include "Vector.h"
 #include "Fields.h"
+#include "VolumeGeometry.h"
+#include "ObjParser.h"
+#include <iostream>
+#include <iomanip>
+#include <cmath>
 
-void makeMcTyson(ScalarField& density, ColorField& color)
+
+void makeObjVolume(std::string filename, ScalarField& density, Mesh& mesh, int gridRes)
+{
+	ScalarGrid grid = ScalarGrid(new SGrid<float>);
+
+	grid->setDefVal(0.0);
+
+	// Parse obj
+	ObjParser parser;
+	mesh = createEmptyMesh();
+	parser.load(filename, mesh);
+	Vector gridDims = mesh->URC() - mesh->LLC();
+	std::cout << "Dims: " << gridDims.__str__() << std::endl;
+	grid->init(gridRes, gridRes, gridRes, gridDims.X(), gridDims.Y(), gridDims.Z(), mesh->LLC() );
+	
+	// Ray march the level set of the mesh
+	RayMarchLevelSet(mesh, grid, 2);
+
+	// Make grid into volume
+	density = volumize(grid);
+	
+	float scale_amt = 1;
+	density = scale(density, Vector(scale_amt,-scale_amt,scale_amt));
+	density = mask(density);
+
+}
+
+void makeTikeMyson(ScalarField& density, ColorField& color)
 {
 
 	float pi = 3.14159265359;
@@ -45,10 +77,12 @@ void makeMcTyson(ScalarField& density, ColorField& color)
 	ear = Union(ear, scale(ear, Vector(-1,1,1)));
 	
 	head = Union(head, ear);
-
-	ScalarField measureStick = CsgBox(Vector(-.5,0,0), .5, 4);
+/*
+	ScalarField measureStick = CsgBox(Vector(), 1, 4);
+	measureStick = scale(measureStick, Vector(.6, .7, .4));
+	measureStick = translate(measureStick, Vector(0.6,0,0));
 	head = Union(head, measureStick);
-
+*/
 	// EYES
 	
 	float eye_size = 0.15;
@@ -161,8 +195,7 @@ void makeMcTyson(ScalarField& density, ColorField& color)
 	pants = translate(pants,pants_pos);
 
 	// remove pants from body
-// UNCOMMENT
-	//body = cutout(body, pants);
+	body = cutout(body, pants);
 
 	pants = Shell(pants, pants_thickness);
 	pants = intersection(pants, Plane(pants_pos, Vector(0,1,0)));
@@ -180,10 +213,10 @@ void makeMcTyson(ScalarField& density, ColorField& color)
 	ScalarField skin;
 	skin = Union(body, head);
 	skin = Union(skin, arms);
-//	skin = Union(skin, shoulder);
+	skin = Union(skin, shoulder);
 	skin = Union(skin, legs);
-//	skin = Union(skin, feet);
-//	skin = cutout(skin, eye);
+	skin = Union(skin, feet);
+	skin = cutout(skin, eye);
 	ScalarField skin_density = mask(skin);
 
 	eye = multiply(mask(eye),2);
@@ -204,12 +237,12 @@ void makeMcTyson(ScalarField& density, ColorField& color)
 	clothes_colorField = multiply(clothes_colorField, clothes);
 
 
-//	color = add(skin_colorField, eye_colorField);
-//	color = add(color, clothes_colorField);
+	color = add(skin_colorField, eye_colorField);
+	color = add(color, clothes_colorField);
 
 	density = skin_density;
-//	density = Union(skin_density, eye);
-//	density = Union(density, clothes);
+	density = Union(skin_density, eye);
+	density = Union(density, clothes);
 	density = multiply(density, 4);
 	
 }

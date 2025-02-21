@@ -15,13 +15,17 @@ const void ObjParser::split(const std::string& s, char delim, std::vector<std::s
 {
 	std::stringstream ss(s);
 	std::string token;
+	//std::cout << "Split " << s << " into ";
 	while(std::getline(ss, token, delim))
 	{
 		if(!token.empty())
 		{
+			//std::cout<<token << " ";
 			tokens.push_back(token);
 		}
 	}
+
+	//std::cout <<std::endl;
 }
 
 void ObjParser::load(const std::string& filename, Mesh m)
@@ -60,6 +64,7 @@ void ObjParser::load(const std::string& filename, Mesh m)
 		*/
 		else if( IsFace(line) )
 		{
+			//std::cout << "line = " << line << std::endl;
 			//	     {P0,t0,n0  P1,t1,n1  P2,t2,n2}
 			int arr[9] = {-1,-1,-1, -1,-1,-1, -1,-1,-1};
 			stringstream ss(line.substr(2));
@@ -69,11 +74,20 @@ void ObjParser::load(const std::string& filename, Mesh m)
 			{
 				std::vector<std::string> tokens;
 				split(vert, '/', tokens);
+				//FIX this mess later. Want to be able to keep texture/normal indices. Probable need to simplify
+				/*
+				std::cout << "size" <<tokens.size() << std::endl;
 				for(size_t i=0; i<tokens.size() && i<3; ++i)
 				{
 					arr[index++] = tokens[i].empty() ? -1 : (std::stoi(tokens[i]) - 1);
-				}
+				}*/
+				arr[index] = std::stoi(tokens[0] )-1;
+				index++;
 			}
+			
+			//std::cout << "arr: ";
+			//for(int i=0; i<9;i++) std::cout << arr[i] << " ";
+			//std::cout << std::endl;
 			m->addFace(arr[0], arr[1], arr[2]);
 		}
 	}

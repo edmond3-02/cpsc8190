@@ -26,81 +26,95 @@ bool write( const std::string& filename, float* img_data, int Nx, int Ny, int Nc
 
 int main(int argc, char *argv[])
 {
-	
-	ScalarGrid grid = ScalarGrid(new SGrid<float>);
-	
-	int gridRes = 60;
-
-	grid->setDefVal(0.0);
-
-	// Parse obj
-	ObjParser parser;
-	Mesh mesh = createEmptyMesh();
-	parser.load("models/bunny/bunny.obj", mesh);
-	Vector gridDims = mesh->URC() - mesh->LLC();
-	grid->init(gridRes, gridRes, gridRes, gridDims.X(), gridDims.Y(), gridDims.Z(), mesh->LLC() );
-/*	
-	// Ray march the level set of the mesh
-	RayMarchLevelSet(mesh, grid, 4);
-
-	// Make grid into volume
-	ScalarField density = volumize(grid);
-	
-	float scale = 1;
-	density = scale(density, Vector(scale,-scale,scale));
-	density = mask(density);
-
-	//ofstream outfile("volume.txt");
-	//WriteVolumeGrid(*grid, outfile);
-	//outfile.close();
-	*/
-
-	ScalarField density;
 	ColorField color = constant(Color(1,1,1,1));
+
+	// tike
+	int tike_res = 200;
+	ScalarField tike;
 	
-	makeMcTyson(density, color);
+	//makeTikeMyson(tike, color);
+	ScalarGrid tike_grid = ScalarGrid(new SGrid<float>);
+	tike_grid->init(tike_res, tike_res, tike_res, 2, 2, 2, Vector(-1, -1.2, -1));
+
+	//StampField( tike_grid, tike, 2);
+	//tike = volumize(tike_grid);
 	
-	/* bunny settings
+	
+	ScalarField bunny;
+	Mesh bunny_mesh;
+	makeObjVolume("models/bunny/bunny.obj", bunny, bunny_mesh, 60);
+
+	// bunny settings
+/*	
 	RenderData d;
-	d.ds = .0004;
-	d.densityField = density;
+	d.ds = .0006;
+	d.densityField = bunny*2;
 	d.colorField = color;
+	float cam_dist = 0.5;
 	d.snear = 0;
 	d.sfar = 1;
-	d.kappa = 10;
-	*/
+	d.kappa = 5;
+*/	
 
-
-	RenderData d;
-	d.ds = .001;
-	d.densityField = density;
+	// tike settings
+/*	RenderData d;
+	d.ds = .005;
+	d.densityField = tike;
 	d.colorField = color;
-	d.snear = 0;
-	d.sfar = 1;
-	d.kappa = 10;
+	float cam_dist = 4;
+	d.snear = cam_dist - 1;
+	d.sfar = cam_dist + 1;
+	d.kappa = 2;
+	
+*/	
 
-	d.lightPosition = {Vector(-1,-1,0),  Vector(1,0,0),  Vector(-1,0,0)};
-	d.lightColor    = {Color(2,0,0,0), Color(0,2,0,0), Color(0,0,2,0)};
-	d.lightPosition.resize(1);
-	d.lightColor.resize(1);
+
+	ScalarField ajax;
+	Mesh ajax_mesh;
+	makeObjVolume("models/ajax/smallajax.obj", ajax, ajax_mesh, 70);
+	float as = .02;
+	ajax = scale(ajax, Vector(as, as, as));
+
+	//Ajax render settings
+	RenderData d;
+	d.ds = .0005;
+	d.densityField = ajax;
+	d.colorField = color;
+	float cam_dist = 1;
+	d.snear = 0;
+	d.sfar = 2;
+	d.kappa = 8;
+
+
+	d.densityField = d.densityField * 40;
+
+	d.lightPosition = {Vector(-1,-1,-1),  Vector(1,1,1),  Vector(-1,1,1)};
+	d.lightColor    = {Color(1,0,0,0), Color(0,1,0,0), Color(0,0,1,0)};
+	d.lightPosition.resize(2);
+	d.lightColor.resize(2);
+
+	Mesh mesh = ajax_mesh;
+	int dsmRes = 70;	
+	Vector gridDims = mesh->URC() - mesh->LLC();
 	for (int i=0; i<d.lightPosition.size();i++)
 	{
 
 		ScalarGrid dsm = ScalarGrid(new SGrid<float>);
-		dsm->init(gridRes, gridRes, gridRes, gridDims.X()+0.05, gridDims.Y()+0.05, gridDims.Z()+0.05, mesh->LLC() - Vector(.025, .025, .025) );
+		dsm->init(dsmRes, dsmRes, dsmRes, gridDims.X(), gridDims.Y(), gridDims.Z(), mesh->LLC() );
 		dsm->setDefVal(0.0);
 	
-		d.dsmField.push_back(RayMarchDSMAccumulation(&d, density, d.lightPosition[i], d.ds, dsm));
+		d.dsmField.push_back(RayMarchDSMAccumulation(&d, d.densityField, d.lightPosition[i], d.ds, dsm));
 	}
 
-	float cam_dist = 0.65;
 	
 
 	std::string prefix = "grid";
 	for(int i=1; i<2; i++)
 	{
-		float rot = 0.5;
+		float rot = 0.0;
 		Vector eye(cam_dist*sin((rot)*2*3.14159265359), -0.1, cam_dist*cos((rot)*2*3.14159265359)); 
+		// TYSON CAM
+		//Vector eye(cam_dist*sin((rot)*2*3.14159265359), -0.2, cam_dist*cos((rot)*2*3.14159265359)); 
 		Vector up(0.0, 1.0, 0.0);
 		Vector dir = -eye;
 		dir[1] = 0;
