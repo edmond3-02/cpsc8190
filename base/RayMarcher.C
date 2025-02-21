@@ -39,7 +39,6 @@ void RenderFrame(const RenderData* d, ProgressMeter& pm, float* image, std::func
 
 void RayMarchEmission(const RenderData* d, const Vector& direction, Color& L)
 {
-	
 	double T = 1;
 	// Calculate snear and sfar ...
 	double snear = d->snear;
@@ -101,10 +100,14 @@ ScalarField RayMarchDSMAccumulation( 	const RenderData* d,
 					ScalarGrid& dsmField)
 {
 
+	int  nb = dsmField->nx() * dsmField->ny();
+	ProgressMeter progress(nb, "Deep Shadow Map for light: " + string(lightPosition.__str__()));
+
 	for(int i=0; i<dsmField->nx(); i++)
 	{
 		for(int j=0; j<dsmField->ny(); j++)
 		{
+			progress.update();
 			for(int k=0; k<dsmField->nz(); k++)
 			{
 				double arg = 0.0;

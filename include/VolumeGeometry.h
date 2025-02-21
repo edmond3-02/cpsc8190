@@ -275,17 +275,20 @@ class TexturedSignedDistance : public Volume<Vector>
  
  
  
+Vector closestPointTriangle(const Vector& p, const Vector& v1,const Vector& v2, const Vector& v3);
  
 Volume<float> * ProcessLevelSet( const TriangleGeometry& geom );
 Volume<float> * ProcessLevelSet( const TriangleGeometry& geom, VolumeGrid<float>& lsgrid, const bool flip = false );
  
  
  
-void RayMarchLevelSet( const TriangleGeometry& geom, VolumeGrid<float>& lsgrid, const float threshold = 0.1, int samps = 100 );
+//void RayMarchLevelSet( const TriangleGeometry& geom, VolumeGrid<float>& lsgrid, const float threshold = 0.1, int samps = 100 );
  
-void RayMarchLevelSet( const TriangleGeometry& geom, ScalarGrid& lsgrid );
+//void RayMarchLevelSet( const TriangleGeometry& geom, ScalarGrid& lsgrid );
+
+void RayMarchLevelSet( const Mesh& geom, ScalarGrid& lsgrid, const int bandwidth );
  
-void RayMarchLevelSet( const TriangleGeometry& geom, VectorGrid& lsgrid );
+//void RayMarchLevelSet( const TriangleGeometry& geom, VectorGrid& lsgrid );
  
  
  
@@ -301,6 +304,7 @@ Volume<float> * ProcessPyramid( const float length, const Vector center,  Volume
  
  
  
+vector<float> FindAllIntersections( const Mesh& g, const Vector P, const Vector D);
 vector<float> FindAllIntersections( const vector<Triangle>& g, const Vector P, const Vector D, const float dmax, const float threshold );
 vector<Vector> FindAllIntersections( const vector<TexturedTriangle>& g, const Vector P, const Vector D, const float dmax, const float threshold );
  

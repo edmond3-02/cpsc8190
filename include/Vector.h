@@ -13,6 +13,7 @@
 
 #include <cmath>
 #include <cstdio>
+#include <algorithm>
 
 namespace lux
 {
@@ -152,7 +153,27 @@ class Vector
   double xyz[3];
 };
 
+inline const Vector max(const Vector& v1, const Vector& v2)
+{
+	Vector vx;
 
+	vx[0] = std::max(v1.X(), v2.X());
+	vx[1] = std::max(v1.Y(), v2.Y());
+	vx[2] = std::max(v1.Z(), v2.Z());
+
+	return vx;
+}
+
+inline const Vector min(const Vector& v1, const Vector& v2)
+{
+	Vector vx;
+
+	vx[0] = std::min(v1.X(), v2.X());
+	vx[1] = std::min(v1.Y(), v2.Y());
+	vx[2] = std::min(v1.Z(), v2.Z());
+
+	return vx;
+}
 
 }
 

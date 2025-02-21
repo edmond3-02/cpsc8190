@@ -121,7 +121,24 @@ class RectangularGrid
     }
  
     const bool getBox( const Vector& lower, const Vector& upper, int& ixl, int& ixu, int& iyl, int& iyu, int& izl, int& izu ) const;
-    const bool getGridIndex( const Vector& P, int& ix, int& iy, int& iz ) const;
+    const bool getGridIndex( const Vector& P, int& ix, int& iy, int& iz ) const
+    {
+	Vector pp = P - origin;
+
+	// X coords
+	ix = int(floor(pp.X()/dX));
+	
+	// Y coords
+	iy = int(floor(pp.Y()/dY));
+	
+	// Z coords
+	iz = int(floor(pp.Z()/dZ));
+
+	if(isInside(ix, iy, iz)) return true;
+	else return false;
+
+    }
+
     void getLinearInterpolation( const Vector& P,  
                                  int& ix, int& iix, float& wx, float& wwx, 
                  int& iy, int& iiy,  float& wy, float& wwy,

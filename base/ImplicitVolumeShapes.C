@@ -1,7 +1,6 @@
 #include <cmath>
 #include "ImplicitVolumeShapes.h"
 #include <iostream>
-using namespace std;
 
 using namespace lux;
 
@@ -275,7 +274,7 @@ UnionVolume::UnionVolume( const ScalarField&  v1, const ScalarField& v2 ) :
 
 const float UnionVolume::eval( const Vector& P ) const
 {
-   return  max(e1->eval(P), e2->eval(P));
+   return  std::max(e1->eval(P), e2->eval(P));
 }
 
 IntersectionVolume::IntersectionVolume( const ScalarField&  v1, const ScalarField& v2 ) :
@@ -285,7 +284,7 @@ IntersectionVolume::IntersectionVolume( const ScalarField&  v1, const ScalarFiel
 
 const float IntersectionVolume::eval( const Vector& P ) const
 {
-   return  min(e1->eval(P), e2->eval(P));
+   return  std::min(e1->eval(P), e2->eval(P));
 }
 
 CutoutVolume::CutoutVolume( const ScalarField&  v1, const ScalarField& v2 ) :
@@ -295,7 +294,7 @@ CutoutVolume::CutoutVolume( const ScalarField&  v1, const ScalarField& v2 ) :
 
 const float CutoutVolume::eval( const Vector& P ) const
 {
-   return  min(e1->eval(P), -e2->eval(P));
+   return  std::min(e1->eval(P), -e2->eval(P));
 }
 
 ShellVolume::ShellVolume( const ScalarField&  v1, const float v2 ) :
@@ -305,7 +304,7 @@ ShellVolume::ShellVolume( const ScalarField&  v1, const float v2 ) :
 
 const float ShellVolume::eval( const Vector& P ) const
 {
-   return  min( (e->eval(P) + d/2.0), -(e->eval(P) - d/2.0) );
+   return  std::min( (e->eval(P) + d/2.0), -(e->eval(P) - d/2.0) );
 }
 
 GriddedSGridVolume::GriddedSGridVolume( const ScalarGrid& g ):
