@@ -16,7 +16,7 @@ void RenderFrame(const RenderData* d, ProgressMeter& pm, float* image, std::func
 	{
 		//progress.update();
 		double y = (double)j/double(d->Ny());
-	//#pragma omp parallel for
+	#pragma omp parallel for
 		for(int i=0;i<d->Nx();i++)
 		{
 			pm.update();
@@ -87,7 +87,7 @@ void RayMarchDSM(const RenderData* d, const Vector& direction, Color& L)
 		X += direction * d->ds;
 		s += d->ds;
 	}
-	L[3] = 1;//-T; // set the alpha channel to the opacity
+	L[3] = 1-T; // set the alpha channel to the opacity
 }
 	
 
@@ -101,21 +101,21 @@ ScalarField RayMarchDSMAccumulation( 	const RenderData* d,
 {
 
 	int  nb = dsmField->nx() * dsmField->ny();
-	ProgressMeter progress(nb, "Deep Shadow Map for light: " + string(lightPosition.__str__()));
+	//ProgressMeter progress(nb, "Deep Shadow Map for light: " + string(lightPosition.__str__()));
 
 	for(int i=0; i<dsmField->nx(); i++)
 	{
 		for(int j=0; j<dsmField->ny(); j++)
 		{
-			progress.update();
+	//		progress.update();
+			#pragma omp parallel for
 			for(int k=0; k<dsmField->nz(); k++)
 			{
 				double arg = 0.0;
 				Vector X = dsmField->evalP(i,j,k);
-
 				if( densityField->eval(X) > 0.0)
 				{
-					float smax = (lightPosition-X).magnitude();
+					double smax = (lightPosition-X).magnitude();
 					Vector direction = (lightPosition-X).unitvector();
 					double s = 0;
 					while(s < smax)

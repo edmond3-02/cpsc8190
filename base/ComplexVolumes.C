@@ -205,10 +205,10 @@ void makeTikeMyson(ScalarField& density, ColorField& color)
 	pants = Union(pants, belt);
 
 	// MAIN DENSITIES
-	//
+	float s = 0.3;
 	ScalarField clothes = Union(wristband, pants);
 	clothes = Union(clothes, teeth);
-	clothes = mask(clothes);
+	clothes = scale(mask(clothes), Vector(s,s,s));
 
 	ScalarField skin;
 	skin = Union(body, head);
@@ -217,9 +217,9 @@ void makeTikeMyson(ScalarField& density, ColorField& color)
 	skin = Union(skin, legs);
 	skin = Union(skin, feet);
 	skin = cutout(skin, eye);
-	ScalarField skin_density = mask(skin);
-
-	eye = multiply(mask(eye),2);
+	// sssssssss
+	ScalarField skin_density = scale(mask(skin), Vector(s,s,s));
+	eye = scale(multiply(mask(eye),2), Vector(s,s,s));
 
 	// COLORS
 

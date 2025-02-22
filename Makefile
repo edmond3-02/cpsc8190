@@ -45,7 +45,10 @@ genswig:	swig/bishop.i	$(OFILES)
 	$(SWIGCXX) -c swig/bishop_wrap.cxx  $(INCLUDES) -o swig/bishop_wrap.o
 	$(SWIGCXX) swig/bishop_wrap.o $(LIB) -o swig/_bishop.so
 
-render:
+make:
 	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/main.C $(INCLUDES) -L. -lOpenImageIO lib/libstarter.a -o bin/main
 	bin/main
 	display images/grid_00001.exr
+
+renderer:
+	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/renderer.C $(INCLUDES) -L. -lOpenImageIO lib/libstarter.a -o bin/renderer

@@ -71,8 +71,8 @@ int main(int argc, char *argv[])
 
 	ScalarField ajax;
 	Mesh ajax_mesh;
-	makeObjVolume("models/ajax/smallajax.obj", ajax, ajax_mesh, 70);
-	float as = .02;
+	makeObjVolume("models/ajax/smallajax.obj", ajax, ajax_mesh, 60);
+	float as = .015;
 	ajax = scale(ajax, Vector(as, as, as));
 
 	//Ajax render settings
@@ -80,27 +80,26 @@ int main(int argc, char *argv[])
 	d.ds = .0005;
 	d.densityField = ajax;
 	d.colorField = color;
-	float cam_dist = 1;
-	d.snear = 0;
-	d.sfar = 2;
-	d.kappa = 8;
+	float cam_dist = 1.2;
+	d.snear = 1;
+	d.sfar = 1.4;
+	d.kappa = 4;
 
 
-	d.densityField = d.densityField * 40;
+	d.densityField = d.densityField * 7;
 
-	d.lightPosition = {Vector(-1,-1,-1),  Vector(1,1,1),  Vector(-1,1,1)};
-	d.lightColor    = {Color(1,0,0,0), Color(0,1,0,0), Color(0,0,1,0)};
-	d.lightPosition.resize(2);
-	d.lightColor.resize(2);
+	d.lightPosition = {Vector(-1,0,-2)*2,  Vector(2,3,2),  Vector(-.2,-2,1)};
+	d.lightColor    = {Color(1,0,0,1), Color(0,1,0,1), Color(0.25,0.25,1.25,1)};
+	d.lightPosition.resize(3);
+	d.lightColor.resize(3);
 
 	Mesh mesh = ajax_mesh;
-	int dsmRes = 70;	
-	Vector gridDims = mesh->URC() - mesh->LLC();
+	int dsmRes = 30;	
+	Vector gridDims = (mesh->URC() - mesh->LLC()) * as*1.2;
 	for (int i=0; i<d.lightPosition.size();i++)
 	{
-
 		ScalarGrid dsm = ScalarGrid(new SGrid<float>);
-		dsm->init(dsmRes, dsmRes, dsmRes, gridDims.X(), gridDims.Y(), gridDims.Z(), mesh->LLC() );
+		dsm->init(dsmRes, dsmRes, dsmRes, gridDims.X(), gridDims.Y(), gridDims.Z(), mesh->LLC()*as );
 		dsm->setDefVal(0.0);
 	
 		d.dsmField.push_back(RayMarchDSMAccumulation(&d, d.densityField, d.lightPosition[i], d.ds, dsm));
@@ -108,11 +107,13 @@ int main(int argc, char *argv[])
 
 	
 
-	std::string prefix = "grid";
-	for(int i=1; i<2; i++)
+	std::string prefix = "ajax";
+	for(int i=0; i<120; i++)
 	{
-		float rot = 0.0;
-		Vector eye(cam_dist*sin((rot)*2*3.14159265359), -0.1, cam_dist*cos((rot)*2*3.14159265359)); 
+		float rot = i/120.0;
+		Vector eye(cam_dist*sin((rot)*2*3.14159265359), 0.0, cam_dist*cos((rot)*2*3.14159265359)); 
+		// Bunny cam
+		// Vector eye(cam_dist*sin((rot)*2*3.14159265359), -0.1, cam_dist*cos((rot)*2*3.14159265359)); 
 		// TYSON CAM
 		//Vector eye(cam_dist*sin((rot)*2*3.14159265359), -0.2, cam_dist*cos((rot)*2*3.14159265359)); 
 		Vector up(0.0, 1.0, 0.0);

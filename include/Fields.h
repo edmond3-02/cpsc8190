@@ -24,7 +24,7 @@ MatrixField constant( const Matrix& v );
 
 ScalarField scale( const ScalarField& , const Vector& s );
 //VectorField scale( const VectorField& , const Vector& s );
-//ColorField  scale( const ColorField& , const Vector& s );
+ColorField  scale( const ColorField& , const Vector& s );
 //MatrixField scale( const MatrixField& , const Vector& s );
 
 ScalarField translate( const ScalarField& , const Vector& s );
