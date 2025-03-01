@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <OpenImageIO/imageio.h>
+#include <iomanip>
 
 #include "Color.h"
 #include "Fields.h"
@@ -17,7 +18,9 @@
 #include "ObjParser.h"
 #include "VolumeGeometry.h"
 #include "ComplexVolumes.h"
-
+#include "PerlinNoise.h"
+#include "Noise.h"
+#include "NoiseMachine.h"
 
 using namespace lux;
 
@@ -26,80 +29,95 @@ bool write( const std::string& filename, float* img_data, int Nx, int Ny, int Nc
 
 int main(int argc, char *argv[])
 {
+	int start_frame = 0;
+	int end_frame   = 0;
+	Vector urc=Vector(2,2,2), llc=Vector(-2,-1.2,-2);
+	std::string filename = "empty";
+	float modelscale = 1.0;
+	float cam_dist = 1;
+	Mesh mesh;
+	int opt;
+	RenderData d;
+	d.kappa = 3;
 	ColorField color = constant(Color(1,1,1,1));
-
-	// tike
-	int tike_res = 200;
-	ScalarField tike;
 	
-	//makeTikeMyson(tike, color);
-	ScalarGrid tike_grid = ScalarGrid(new SGrid<float>);
-	tike_grid->init(tike_res, tike_res, tike_res, 2, 2, 2, Vector(-1, -1.2, -1));
+	while( (opt = getopt(argc, argv, "o:Obs:e:")) != -1)
+	{
+		switch(opt)
+		{
+			case 'o':
+			break;
 
-	//StampField( tike_grid, tike, 2);
-	//tike = volumize(tike_grid);
+			case 'O':
+			{	
+				Noise_t	param;
+				param.octaves = 3.0;
+				filename = "noise_sphere";
+				
+				NoiseMachine noise = perlin(param);
+			
+				ScalarField sphere = mask(Sphere(Vector(0,0,0), .3));
+			
+				d.densityField = sphere * scale(SFNoise(noise), Vector(.1,.1,.1));
+			  	d.colorField = color;
+				cam_dist = 1.5;
+				d.snear = 1.2;
+	  			d.sfar = 1.8;
+				d.ds = 0.002;
+				urc=Vector(.3,.3,.3);
+				llc=Vector(-.3,-.3,-.3);
+
+				break;
+			}
+			// BUNNY
+			case 'b':
+			{
+				ScalarField bunny;
+				Mesh bunny_mesh;
+				makeObjVolume("models/bunny/bunny.obj", bunny, bunny_mesh, 100);
+				filename = "noise_bunny";
+				//urc = bunny_mesh->URC();
+				//llc = bunny_mesh->LLC();
+
+				bunny = translate(bunny, Vector(0,.1,0));
+
+				// bunny settings
+				d.ds = .0003;
+				d.densityField = bunny;
+			  	d.colorField = color;
+				cam_dist = 0.5;
+				d.snear = 0;
+	  			d.sfar = 1;
+				break;
+			}
+			case 's':
+				start_frame = std::stoi(optarg);
+			break;
+
+			case 'e':
+				end_frame = std::stoi(optarg);
+			break;
+		}
+	}
 	
+	std::cout << "start frame: " << start_frame << std::endl;
+	std::cout << "end frame: " << end_frame << std::endl;
 	
-	ScalarField bunny;
-	Mesh bunny_mesh;
-	makeObjVolume("models/bunny/bunny.obj", bunny, bunny_mesh, 60);
+	// check that density field was set
+	if(!d.densityField) return 0;
+	d.densityField = d.densityField * 25;
 
-	// bunny settings
-/*	
-	RenderData d;
-	d.ds = .0006;
-	d.densityField = bunny*2;
-	d.colorField = color;
-	float cam_dist = 0.5;
-	d.snear = 0;
-	d.sfar = 1;
-	d.kappa = 5;
-*/	
-
-	// tike settings
-/*	RenderData d;
-	d.ds = .005;
-	d.densityField = tike;
-	d.colorField = color;
-	float cam_dist = 4;
-	d.snear = cam_dist - 1;
-	d.sfar = cam_dist + 1;
-	d.kappa = 2;
-	
-*/	
-
-
-	ScalarField ajax;
-	Mesh ajax_mesh;
-	makeObjVolume("models/ajax/smallajax.obj", ajax, ajax_mesh, 60);
-	float as = .015;
-	ajax = scale(ajax, Vector(as, as, as));
-
-	//Ajax render settings
-	RenderData d;
-	d.ds = .0005;
-	d.densityField = ajax;
-	d.colorField = color;
-	float cam_dist = 1.2;
-	d.snear = 1;
-	d.sfar = 1.4;
-	d.kappa = 4;
-
-
-	d.densityField = d.densityField * 7;
-
-	d.lightPosition = {Vector(-1,0,-2)*2,  Vector(2,3,2),  Vector(-.2,-2,1)};
-	d.lightColor    = {Color(1,0,0,1), Color(0,1,0,1), Color(0.25,0.25,1.25,1)};
+	d.lightPosition = {Vector(-.2,-2,1),  Vector(2,3,2),  Vector(-1,0,-2)*2};
+	d.lightColor    = {Color(1.2,0.2,0.2,1), Color(0,0.5,0,1), Color(0,0,1.0,1)};
 	d.lightPosition.resize(3);
 	d.lightColor.resize(3);
 
-	Mesh mesh = ajax_mesh;
-	int dsmRes = 30;	
-	Vector gridDims = (mesh->URC() - mesh->LLC()) * as*1.2;
+	int dsmRes = 50;	
+	Vector gridDims = (urc - llc);
 	for (int i=0; i<d.lightPosition.size();i++)
 	{
 		ScalarGrid dsm = ScalarGrid(new SGrid<float>);
-		dsm->init(dsmRes, dsmRes, dsmRes, gridDims.X(), gridDims.Y(), gridDims.Z(), mesh->LLC()*as );
+		dsm->init(dsmRes, dsmRes, dsmRes, gridDims.X(), gridDims.Y(), gridDims.Z(), llc);
 		dsm->setDefVal(0.0);
 	
 		d.dsmField.push_back(RayMarchDSMAccumulation(&d, d.densityField, d.lightPosition[i], d.ds, dsm));
@@ -107,15 +125,11 @@ int main(int argc, char *argv[])
 
 	
 
-	std::string prefix = "ajax";
-	for(int i=0; i<120; i++)
+	std::string prefix = filename;
+	for(int i=start_frame; i<=end_frame; i++)
 	{
 		float rot = i/120.0;
 		Vector eye(cam_dist*sin((rot)*2*3.14159265359), 0.0, cam_dist*cos((rot)*2*3.14159265359)); 
-		// Bunny cam
-		// Vector eye(cam_dist*sin((rot)*2*3.14159265359), -0.1, cam_dist*cos((rot)*2*3.14159265359)); 
-		// TYSON CAM
-		//Vector eye(cam_dist*sin((rot)*2*3.14159265359), -0.2, cam_dist*cos((rot)*2*3.14159265359)); 
 		Vector up(0.0, 1.0, 0.0);
 		Vector dir = -eye;
 		dir[1] = 0;
@@ -136,7 +150,6 @@ int main(int argc, char *argv[])
 
 		write("images/" + framename + ".exr", image, d.Nx(), d.Ny(), d.Nc());
 	}
-	
 }
 
 bool write( const std::string& filename, float* img_data, int Nx, int Ny, int Nc ) 

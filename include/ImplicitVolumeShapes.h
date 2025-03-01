@@ -12,6 +12,7 @@
 #include "Volume.h"
 #include "LinearAlgebra.h"
 #include "SparseGrid.h"
+#include "NoiseMachine.h"
 
 namespace lux
 {
@@ -97,6 +98,35 @@ class RotateVolume : public Volume<float>
     float a;
     Vector a0;
 };
+
+class NegateVolume : public Volume<float> 
+ {
+   public:
+  
+     NegateVolume( Volume<float> * v );
+  
+     NegateVolume( const ScalarField& v );
+  
+     ~NegateVolume(){}
+  
+  
+     const float eval( const Vector& P ) const;
+  
+     //const Vector grad(  const Vector& P ) const;
+  
+    virtual std::string typelabel() 
+    { 
+       std::string lbl = "Negate";
+       lbl = lbl + "(";
+       lbl = lbl + elem->typelabel();
+       lbl = lbl + ")";
+       return lbl;
+    }
+  
+   private:
+   
+     const ScalarField elem;
+ };
 
 class ExpVolume: public Volume<float> 
 {
@@ -292,13 +322,45 @@ class IcosahedronVolume : public Volume<float>
  
 };
 
-class MultiplyScalarVolume : public Volume<float> 
+class AbsoluteVolume : public Volume<float> 
+{
+  public:
+ 
+    AbsoluteVolume( Volume<float> * v )  ; 
+ 
+    AbsoluteVolume( const ScalarField& v )  ; 
+ 
+    ~AbsoluteVolume(){}
+ 
+ 
+    const float eval( const Vector& P ) const;
+ 
+   //const Vector grad(  const Vector& P ) const;
+ 
+   virtual std::string typelabel() 
+   { 
+      std::string lbl = "Absolute";
+      lbl = lbl + "(";
+      lbl = lbl + elem->typelabel();
+      lbl = lbl + ")";
+      return lbl;
+   }
+ 
+  private:
+ 
+    const ScalarField elem;
+ 
+};
+
+class MultiplyVolume : public Volume<float> 
 {
   public:
 
-    MultiplyScalarVolume( const ScalarField&  e, const float v );
+    MultiplyVolume( const ScalarField&  e, const float v );
+    
+    MultiplyVolume( const ScalarField& v, const ScalarField& u );
 
-    ~MultiplyScalarVolume(){}
+    ~MultiplyVolume(){}
 
 
     const float eval( const Vector& P ) const;
@@ -306,19 +368,20 @@ class MultiplyScalarVolume : public Volume<float>
 
    virtual std::string typelabel() 
    { 
-      std::string lbl = "MultiplyScalar";
+      std::string lbl = "Multiply";
       lbl = lbl + "(";
-      lbl = lbl + e1->typelabel();
+      lbl = lbl + elem->typelabel();
       lbl = lbl + ",";
-      lbl = lbl + std::to_string(val);
+      lbl = lbl + std::to_string(constant);
       lbl = lbl + ")";
       return lbl;
    }
 
   private:
 
-    const ScalarField e1;
-    const float val;
+    const ScalarField elem;
+    const ScalarField factor;
+    float constant;
 };
 
 
@@ -384,6 +447,70 @@ class MaskVolume : public Volume<float>
     const ScalarField e1;
 };
 
+class ClampVolume : public Volume<float> 
+ {
+   public:
+  
+     //ClampVolume( Volume<float> * v, float minv, float maxv );
+  
+     ClampVolume( const ScalarField& v, float minv, float maxv );
+  
+  
+     ~ClampVolume(){}
+  
+  
+     const float eval( const Vector& P ) const;
+  
+     //const Vector grad(  const Vector& P ) const;
+  
+    virtual std::string typelabel() 
+    { 
+       std::string lbl = "Clamp";
+       lbl = lbl + "(";
+       lbl = lbl + elem->typelabel();
+       lbl = lbl + ")";
+       return lbl;
+    }
+  
+   private:
+  
+    const ScalarField elem;
+     float vmin, vmax;
+ };
+
+class GammaVolume : public Volume<float> 
+ {
+   public:
+  
+     GammaVolume( Volume<float> * v, float gam );
+  
+     GammaVolume( const ScalarField& v, float gam );
+  
+     GammaVolume( const ScalarField& v, const ScalarField& g );
+  
+  
+     ~GammaVolume(){}
+  
+  
+     const float eval( const Vector& P ) const;
+  
+     //const Vector grad(  const Vector& P ) const;
+  
+    virtual std::string typelabel() 
+    { 
+       std::string lbl = "Gamma";
+       lbl = lbl + "(";
+       lbl = lbl + elem->typelabel();
+       lbl = lbl + ")";
+       return lbl;
+    }
+  
+   private:
+  
+     const ScalarField elem;
+     const ScalarField factor;
+     float gamma;
+ };
 
 class UnionVolume : public Volume<float> 
 {
@@ -493,6 +620,32 @@ class ShellVolume : public Volume<float>
     const ScalarField e;
     const float  d;
 };
+
+
+class NoiseVolume : public Volume<float> 
+ {
+   public:
+  
+     NoiseVolume( Noise* n, const float d = 0.01 ); 
+     NoiseVolume( NoiseMachine n, const float d = 0.01 ); 
+  
+    ~NoiseVolume(){}
+  
+     const float eval( const Vector& P ) const; 
+     //const Vector grad(  const Vector& P ) const;  
+  
+    virtual std::string typelabel() 
+    { 
+       std::string lbl = "Noise";
+       return lbl;
+    }
+  
+   private:
+  
+     NoiseMachine noise;
+     float dx;
+ };
+
 
 /*
  *  PREFER VOLUMIZED GRID

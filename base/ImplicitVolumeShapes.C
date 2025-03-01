@@ -51,12 +51,20 @@ RotateVolume::RotateVolume(const ScalarField& field, const float angle, const Ve
 	a0.normalize();
     }
 
-
 const float RotateVolume::eval( const Vector& P ) const 
 {
    Vector x = P;
    x = x * cos(a) + a0*(a0*x)*(1-cos(a)) + (x^a0)*sin(a);
    return e->eval(x);
+}
+
+NegateVolume::NegateVolume(const ScalarField& v ) :
+       elem(v)
+    {}
+
+const float NegateVolume::eval( const Vector& P ) const
+{
+   return -elem->eval(P);
 }
 
 ExpVolume::ExpVolume( Volume<float>* v ) :
@@ -233,14 +241,37 @@ const float IcosahedronVolume::eval( const Vector& P ) const
    return f;
 }
 
-MultiplyScalarVolume::MultiplyScalarVolume( const ScalarField&  e, const float v ) :
-      e1 (e),
-      val (v)
+AbsoluteVolume::AbsoluteVolume( const ScalarField& v ) :
+     elem(v)
+   {}
+
+AbsoluteVolume::AbsoluteVolume( Volume<float> * v ) :
+     elem(v)
+   {}
+
+const float AbsoluteVolume::eval( const Vector& P ) const
+{
+	return std::abs(elem->eval(P));
+}
+
+MultiplyVolume::MultiplyVolume( const ScalarField&  e, const float v ) :
+      elem (e),
+      factor(nullptr),
+      constant (v)
     {}
 
-const float MultiplyScalarVolume::eval( const Vector& P ) const
+MultiplyVolume::MultiplyVolume( const ScalarField&  e, const ScalarField& u) :
+      elem (e),
+      factor(u),
+      constant (0)
+    {}
+
+const float MultiplyVolume::eval( const Vector& P ) const
 {
-   return  e1->eval(P) * val;
+   if(factor == nullptr)
+	return  elem->eval(P) * constant;
+   else
+	return elem->eval(P) * factor->eval(P);
 }
 
 AddVolume::AddVolume( const ScalarField&  v1, const ScalarField& v2 ) :
@@ -272,6 +303,42 @@ UnionVolume::UnionVolume( const ScalarField&  v1, const ScalarField& v2 ) :
       e2 (v2)
     {}
 
+ClampVolume::ClampVolume( const ScalarField& v, float minv, float maxv ) :
+      elem(v),
+      vmin(minv),
+      vmax(maxv)
+    {}
+
+const float ClampVolume::eval( const Vector& P ) const
+{
+	return std::max(std::min(elem->eval(P), vmin),vmax);
+}
+ 
+GammaVolume::GammaVolume( const ScalarField& v, float gam ) :
+       elem(v),
+       factor(nullptr),
+       gamma(0)
+     {}
+  
+GammaVolume::GammaVolume( const ScalarField& v, const ScalarField& g ) :
+       elem(v),
+       factor(g),
+       gamma(0)
+     {}
+
+const float GammaVolume::eval( const Vector& P ) const
+{
+	return (factor == nullptr) ? std::pow(elem->eval(P), gamma) : std::pow(elem->eval(P), factor->eval(P));
+}
+
+BlinnBlendVolume::BlinnBlendVolume( Volume<float> * v1, Volume<float> * v2, const float _alpha = 1.0 ) :
+        elem1(v1),
+        elem2(v2),
+        alpha(_alpha)
+      {}
+  
+ BlinnBlendVolume::BlinnBlendVolume( const ScalarField& v1, const ScalarField& v2, const float _alpha = 1.0 );
+  
 const float UnionVolume::eval( const Vector& P ) const
 {
    return  std::max(e1->eval(P), e2->eval(P));
@@ -306,6 +373,23 @@ const float ShellVolume::eval( const Vector& P ) const
 {
    return  std::min( (e->eval(P) + d/2.0), -(e->eval(P) - d/2.0) );
 }
+
+// NOISE
+NoiseVolume::NoiseVolume( Noise* n, const float d) :
+	noise(n),
+	dx   (d)
+     {}
+
+
+NoiseVolume::NoiseVolume( NoiseMachine n, const float d) :
+	noise(n),
+	dx   (d)
+     {}
+
+const float NoiseVolume::eval( const Vector& P ) const
+{
+	return noise->eval(P);	
+} 
 
 GriddedSGridVolume::GriddedSGridVolume( const ScalarGrid& g ):
 	scgrid(g),

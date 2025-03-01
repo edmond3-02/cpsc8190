@@ -4,6 +4,7 @@
 
 #include "Volume.h"
 #include "SparseGrid.h"
+#include "NoiseMachine.h"
 
 namespace lux
 {
@@ -47,12 +48,12 @@ MatrixField exp( const MatrixField& v );
 //ColorField  report( const ColorField& v, const string& tag ); 
 //MatrixField report( const MatrixField& v, const string& tag ); 
 
-//ScalarField negate( const ScalarField& v );
+ScalarField negate( const ScalarField& v );
 //VectorField negate( const VectorField& v );
 //ColorField  negate( const ColorField& v );
 //MatrixField negate( const MatrixField& v );
 
-//ScalarField abs( const ScalarField& v ); 
+ScalarField abs( const ScalarField& v ); 
 //ScalarField abs( const VectorField& v ); 
 
 //ScalarField which( const ScalarField& v1, const ScalarField& v2, const ScalarField& swtch );
@@ -61,7 +62,7 @@ MatrixField exp( const MatrixField& v );
 //MatrixField which( const MatrixField& v1, const MatrixField& v2, const ScalarField& swtch );
 
 ScalarField multiply( const ScalarField& v, const float a ); 
-//ScalarField multiply( const ScalarField& v, const ScalarField& u ); 
+ScalarField multiply( const ScalarField& v, const ScalarField& u ); 
 //VectorField multiply( const VectorField& v, const float a ); 
 //VectorField multiply( const VectorField& v, const ScalarField& u ); 
 //ColorField  multiply( const ColorField& v, const float a ); 
@@ -102,9 +103,9 @@ ScalarField Icosahedron();
 //ScalarField CappedCylinder( const Vector cen, const Vector axis, const float length, const float radius );
 
 ScalarField mask( const ScalarField& v );
-//ScalarField clamp( const ScalarField& v, float minv, float maxv );
-//ScalarField pow( const ScalarField& v, float gam );
-//ScalarField pow( const ScalarField& v, const ScalarField& gam );
+ScalarField clamp( const ScalarField& v, float minv, float maxv );
+ScalarField pow( const ScalarField& v, float gam );
+ScalarField pow( const ScalarField& v, const ScalarField& gam );
 //ColorField  pow( const ColorField& v, float gam );
 //ColorField  pow( const ColorField& v, const ScalarField& gam );
 ScalarField Union( const ScalarField& v1, const ScalarField& v2 );
@@ -172,6 +173,8 @@ ScalarField Shell( const ScalarField& v, const float thickness );
 //VectorField component( const ScalarField& X, const ScalarField& Y, const ScalarField& Z );
 
 ScalarField volumize(const ScalarGrid& g);
+
+ScalarField SFNoise( NoiseMachine n, const float d = 0.01 );
 
 }
 
