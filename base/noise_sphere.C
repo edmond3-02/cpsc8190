@@ -110,6 +110,7 @@ int main(int argc, char *argv[])
 		AnchorChain particles;
 		particles.push_back(gen_pnoise(i));
 
+
 		int res = 500;
 		ScalarGrid grid = ScalarGrid(new SGrid<float>);
 		grid->init(res, res, res, box_size*2, box_size*2, box_size*2, llc);
@@ -153,17 +154,26 @@ int main(int argc, char *argv[])
 
 Noise_t gen_pnoise(int i)
 {
-        float octaves = i / 100;
-	octaves = remap(octaves, 0, 4, 1., 3.);
+        int xl = 3;
+        int x = 500 / xl;
+        int yl = 4;
+        int y = x / yl;
+        int zl = 4;
+        int z = y / zl;
 
-	float frequency = (i / 20) % 5;
-	frequency = remap(frequency, 0, 3, 2., 5.);
+        int a = i / x;
+	float fade = remap(a, xl - 1, 0, .5, 2.0);
 
-	float fjump = (i / 5) % 5;
-	fjump = remap(fjump, 4, 0, 1., 3.);
+	int b = (i % x) / y;
+        float frequency = remap(b, 0, yl - 1, 2., 5.);
 
-	float fade = i % 5;
-	fade = remap(fade, 4, 0, .5, 2.0);
+	int c = (i % y) / z;
+        float fjump = remap(c, zl - 1, 0, 1., 3.);
+
+        int d = i % z;
+	float octaves = remap(d, 0, z, 1., 3.);
+
+        //std::cout << a << " " << b << " " << c << " " << d <<std::endl;
 
 	Noise_t noise;
 	noise.octaves = octaves;
