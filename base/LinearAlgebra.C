@@ -132,6 +132,10 @@ const double dot_product( const Vector& v1, const Vector& v2 ){ return v1*v2; }
 const Vector mat_prod_vec ( const Matrix& m, const Vector& v ){ return m*v; }
 const Vector vec_prod_mat ( const Vector& v, const Matrix& m ){ return v*m; }
 
-
+float remap(int in, int os, int oe, float ns, float ne)
+{
+	float val = ns + (ne - ns) * ((in - os) / float(oe - os));
+	return std::min(ne, std::max(ns, val ) );
+}
 
 }

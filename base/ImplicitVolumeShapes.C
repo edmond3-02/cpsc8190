@@ -311,13 +311,13 @@ ClampVolume::ClampVolume( const ScalarField& v, float minv, float maxv ) :
 
 const float ClampVolume::eval( const Vector& P ) const
 {
-	return std::max(std::min(elem->eval(P), vmin),vmax);
+	return std::min(std::max(elem->eval(P), vmin),vmax);
 }
  
 GammaVolume::GammaVolume( const ScalarField& v, float gam ) :
        elem(v),
        factor(nullptr),
-       gamma(0)
+       gamma(gam)
      {}
   
 GammaVolume::GammaVolume( const ScalarField& v, const ScalarField& g ) :
@@ -331,14 +331,23 @@ const float GammaVolume::eval( const Vector& P ) const
 	return (factor == nullptr) ? std::pow(elem->eval(P), gamma) : std::pow(elem->eval(P), factor->eval(P));
 }
 
-BlinnBlendVolume::BlinnBlendVolume( Volume<float> * v1, Volume<float> * v2, const float _alpha = 1.0 ) :
+BlinnBlendVolume::BlinnBlendVolume( Volume<float> * v1, Volume<float> * v2, const float _alpha) :
         elem1(v1),
         elem2(v2),
         alpha(_alpha)
       {}
   
- BlinnBlendVolume::BlinnBlendVolume( const ScalarField& v1, const ScalarField& v2, const float _alpha = 1.0 );
-  
+ BlinnBlendVolume::BlinnBlendVolume( const ScalarField& v1, const ScalarField& v2, const float _alpha) :
+        elem1(v1),
+        elem2(v2),
+        alpha(_alpha)
+      {}
+ 
+const float BlinnBlendVolume::eval( const Vector& P ) const
+{
+	return std::exp(alpha * elem1->eval(P)) + std::exp(alpha * elem2->eval(P));
+}
+ 
 const float UnionVolume::eval( const Vector& P ) const
 {
    return  std::max(e1->eval(P), e2->eval(P));
@@ -362,6 +371,31 @@ CutoutVolume::CutoutVolume( const ScalarField&  v1, const ScalarField& v2 ) :
 const float CutoutVolume::eval( const Vector& P ) const
 {
    return  std::min(e1->eval(P), -e2->eval(P));
+}
+
+RadialPyroclasticVolume::RadialPyroclasticVolume( const Vector& Center, const float Radius, const float Amp, 
+						  const float octaves,  const float freq,   const float rough, 
+						  const float trans,    const float time,   const float Gamma ) :
+						center   (Center),
+						amplitude(Amp),
+						gamma    (Gamma),
+						translate(trans),
+						radius   (Radius)
+	{
+		parms.octaves   = octaves;
+		parms.frequency = freq;
+		parms.roughness = rough;
+		parms.time      = time;
+		noise.setParameters(parms);
+	}
+
+const float RadialPyroclasticVolume::eval( const Vector& P ) const
+{
+	Vector X = P - center;
+	Vector Xc = radius * (X/X.magnitude());
+
+	return (radius - X.magnitude()) + std::pow(std::abs(noise.eval(Xc)), gamma) * amplitude;
+
 }
 
 ShellVolume::ShellVolume( const ScalarField&  v1, const float v2 ) :

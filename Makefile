@@ -13,15 +13,15 @@ OFILES = base/Matrix.o \
 	 base/SparseGrid.o \
 	 base/RayMarcher.o \
 	 base/ObjParser.o \
-	 base/VolumeGeometry.o \
-	 base/ComplexVolumes.o \
+	 base/VolumeGeometry.o \ base/ComplexVolumes.o \
 	 base/PerlinNoise.o \
-	 base/NoiseMachine.o
+	 base/NoiseMachine.o \
+	 base/Image.o
 
 AFILES = $(OFILES)
 
 ROOTDIR = .
-LIB = -L$(ROOTDIR)/lib -lstarter  -lm -lOpenImageIO
+LIB = -L$(ROOTDIR)/lib -lstarter  -lm  -lOpenImageIO
 
 CXX = g++ -shared -g -O2 -fPIC -fopenmp -fopenmp -std=c++14
 
@@ -31,13 +31,13 @@ PYTHONINCLUDE = -I/usr/include/python3.8
 
 SWIGEXEC = swig
 
-INCLUDES = -I ./include/ $(PYTHONINCLUDE)  
+INCLUDES = -I ../build/include -I ./include/ $(PYTHONINCLUDE)  
 
 all: $(AFILES) 
 	ar rv ./lib/libstarter.a $?
 
 .C.o: $<
-	$(CXX) -c $(INCLUDES) $< -o $@
+	$(CXX) -c $(INCLUDES) $< -o $@ 
 
 clean:
 	rm -rf *.o bin/* base/*.o core ./lib/libstarter.a  *~ swig/*~ swig/*.so swig/*.o swig/*.cxx swig/*.pyc swig/bishop.py* doc/html doc/latex python/*.pyc 
@@ -47,8 +47,11 @@ genswig:	swig/bishop.i	$(OFILES)
 	$(SWIGCXX) -c swig/bishop_wrap.cxx  $(INCLUDES) -o swig/bishop_wrap.o
 	$(SWIGCXX) swig/bishop_wrap.o $(LIB) -o swig/_bishop.so
 
-main:
-	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/main.C $(INCLUDES) -L. -lOpenImageIO lib/libstarter.a -o bin/main
+noise:
+	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/noise_sphere.C $(INCLUDES) -L../build/lib  lib/libstarter.a -lOpenImageIO -lOpenImageIO_Util -o bin/noise
+
+pyro:
+	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/pyroclast.C $(INCLUDES) -L../build/lib  lib/libstarter.a -lOpenImageIO -lOpenImageIO_Util -o bin/pyro
 
 renderer:
-	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/renderer.C $(INCLUDES) -L. -lOpenImageIO lib/libstarter.a -o bin/renderer
+	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/renderer.C $(INCLUDES) -L../build/lib lib/libstarter.a -lOpenImageIO -lOpenImageIO_Util -o bin/renderer

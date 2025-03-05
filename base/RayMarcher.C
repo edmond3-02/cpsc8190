@@ -101,13 +101,13 @@ ScalarField RayMarchDSMAccumulation( 	const RenderData* d,
 {
 
 	int  nb = dsmField->nx() * dsmField->ny();
-	//ProgressMeter progress(nb, "Deep Shadow Map for light: " + string(lightPosition.__str__()));
+	ProgressMeter progress(nb, "Deep Shadow Map for light: " + string(lightPosition.__str__()));
 
 	for(int i=0; i<dsmField->nx(); i++)
 	{
 		for(int j=0; j<dsmField->ny(); j++)
 		{
-	//		progress.update();
+			progress.update();
 			#pragma omp parallel for
 			for(int k=0; k<dsmField->nz(); k++)
 			{

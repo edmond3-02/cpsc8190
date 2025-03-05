@@ -512,6 +512,41 @@ class GammaVolume : public Volume<float>
      float gamma;
  };
 
+class BlinnBlendVolume : public Volume<float> 
+ {
+   public:
+  
+     BlinnBlendVolume( Volume<float> * v1, Volume<float> * v2, const float _alpha = 1.0 );
+  
+     BlinnBlendVolume( const ScalarField& v1, const ScalarField& v2, const float _alpha = 1.0 );
+  
+  
+     ~BlinnBlendVolume(){}
+  
+  
+     const float eval( const Vector& P ) const;
+ 
+     void setAlpha(const float a) { alpha = a; }
+ 
+     //const Vector grad(  const Vector& P ) const;
+  
+    virtual std::string typelabel() 
+    { 
+       std::string lbl = "BlinnBlend";
+       lbl = lbl + "(";
+       lbl = lbl + elem1->typelabel();
+       lbl = lbl + ",";
+       lbl = lbl + elem2->typelabel();
+       lbl = lbl + ")";
+       return lbl;
+    }
+  
+   protected:
+  
+     const ScalarField elem1, elem2;
+     float alpha;
+ };
+
 class UnionVolume : public Volume<float> 
 {
   public:
@@ -591,6 +626,37 @@ class CutoutVolume : public Volume<float>
   private:
 
     const ScalarField e1, e2;
+};
+
+class RadialPyroclasticVolume : public Volume<float> 
+{
+  public:
+ 
+    RadialPyroclasticVolume( const Vector& Center, const float Radius, const float Amp, 
+                       const float octaves, const float freq, const float rough, const float trans, const float time, const float Gamma = 1.0/3.0 );
+ 
+   ~RadialPyroclasticVolume(){}
+ 
+    const float eval( const Vector& P ) const;
+    //const Vector grad(  const Vector& P ) const;
+ 
+   virtual std::string typelabel() 
+   { 
+      std::string lbl = "RadialPyroclastic";
+      return lbl;
+   }
+ 
+  private:
+ 
+    mutable FractalSum<PerlinNoiseGustavson> noise;
+    float amplitude;
+    Vector center;
+    float gamma;
+    float translate;
+    float radius;
+    mutable Noise_t parms;
+ 
+    float dx;
 };
 
 class ShellVolume : public Volume<float> 

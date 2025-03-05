@@ -79,6 +79,11 @@ ScalarField intersection( const ScalarField& v1, const ScalarField& v2 ) { retur
 ScalarField cutout( const ScalarField& v1, const ScalarField& v2 ) { return ScalarField( new CutoutVolume(v1, v2) ) ;}
 ScalarField Shell( const ScalarField& v, const float thickness ) { return ScalarField( new ShellVolume(v, thickness) ) ; }
 
+ScalarField RadialPyroclast( const Vector& Center, const float Radius, const float Amp, 
+                              const float octaves, const float freq, const float rough, 
+                              const float trans, const float time, const float Gamma ) 
+{  return ScalarField(new RadialPyroclasticVolume( Center, Radius, Amp, octaves, freq, rough, trans, time, Gamma)); }
+
 ScalarField SFNoise( NoiseMachine n, const float d ) { return ScalarField( new NoiseVolume(n, d)); } 
 
 ScalarField volumize(const ScalarGrid& g) { return ScalarField( new GriddedSGridVolume( g ) ) ; }

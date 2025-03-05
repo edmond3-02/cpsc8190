@@ -3,4 +3,7 @@ images/
 movies/
 **.o
 **.*.swp
+**.*.swo
 bin/
+lib/
+*.vim

@@ -126,6 +126,9 @@ ScalarField Shell( const ScalarField& v, const float thickness );
 //MatrixField outer( const VectorField& v1, const VectorField& v2 );
 //MatrixField inverse( const MatrixField& m );
 
+ScalarField RadialPyroclast( const Vector& Center, const float Radius, const float Amp, 
+                              const float octaves, const float freq, const float rough, 
+                              const float trans, const float time, const float Gamma = 1.0/3.0 );
 
 //ScalarField gridded( const ScalarGrid& g );
 //VectorField gridded( const VectorGrid& g );

@@ -56,7 +56,7 @@ const Matrix Pauli1();
 const Matrix Pauli2();
 
 
-
+float remap(int in, int os, int oe, float ns, float ne);
 
 
 
