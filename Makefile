@@ -53,5 +53,8 @@ noise:
 pyro:
 	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/pyroclast.C $(INCLUDES) -L../build/lib  lib/libstarter.a -lOpenImageIO -lOpenImageIO_Util -o bin/pyro
 
+wisp:
+	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/wisp.C $(INCLUDES) -L../build/lib  lib/libstarter.a -lOpenImageIO -lOpenImageIO_Util -o bin/wisp
+
 renderer:
 	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/renderer.C $(INCLUDES) -L../build/lib lib/libstarter.a -lOpenImageIO -lOpenImageIO_Util -o bin/renderer

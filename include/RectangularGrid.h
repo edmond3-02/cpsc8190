@@ -145,7 +145,7 @@ class RectangularGrid
                  int& iz, int& iiz,  float& wz, float& wwz ) const
     {
 	Vector pp = P - origin;
-
+        
 	// X coords
 	ix = int(pp.X()/dX);
 	iix = ix+1; 

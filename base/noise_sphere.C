@@ -162,7 +162,7 @@ Noise_t gen_pnoise(int i)
         int z = y / zl;
 
         int a = i / x;
-	float fade = remap(a, xl - 1, 0, .5, 2.0);
+	float fade = remap(a, xl - 1, 0, 1, 4.0);
 
 	int b = (i % x) / y;
         float frequency = remap(b, 0, yl - 1, 2., 5.);

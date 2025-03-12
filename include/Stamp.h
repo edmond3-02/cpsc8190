@@ -126,7 +126,7 @@ void StampNoise( ScalarGrid& grid, const AnchorChain& particles );
 //void StampNoiseAndColor( ScalarGrid& grid, ColorGrid& cgrid,  Noise* noise, const AnchorChain& particles );
  
  
-//void StampPointWisps( ScalarGrid& grid, const AnchorChain& particles );
+void StampPointWisps( ScalarGrid& grid, const AnchorChain& particles );
 //void StampPointWisps( ScalarGrid& grid, ColorGrid& cgrid, const AnchorChain& particles );
 //void StampWisps( ScalarGrid& grid, const Vector& P, const float opacity );
 //void StampBlurredWisps( ScalarGrid& grid, const Vector& P, const float timestep, const Vector& velocity, const Vector& acceleration, const float opacity, int seed );

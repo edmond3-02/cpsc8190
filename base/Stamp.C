@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstdlib>
 
 #include "Stamp.h"
 #include "Volume.h"
@@ -103,6 +104,74 @@ void StampNoise( ScalarGrid& grid, const AnchorChain& particles )
 	{
 		NoiseMachine noise = perlin(particles[i]);
 		stamp_noise(grid, noise, particles[i].P, particles[i].radius, particles[i].falloff);
+	}
+}
+
+
+void StampPointWisps( ScalarGrid& grid, const AnchorChain& particles )
+{
+	for(int i=0; i<particles.size(); i++)
+	{
+		// seed random
+		srand(particles[i].seed);
+
+		// FPSN 1
+		NoiseMachine fspn1 = perlin(particles[i]);
+
+		// FSPN 2
+		Noise_t param;
+		param.octaves = particles[i].wispOctaves;
+		param.fjump = particles[i].wispFjump;
+		param.roughness = particles[i].wispRoughness;
+		param.frequency = particles[i].wispFreq;
+		param.translate = particles[i].wispTranslate;
+		param.offset = particles[i].wispOffset;
+		NoiseMachine fspn2 = perlin(param);
+
+		for(int j=0; j<particles[i].nbWisps; j++)
+		{
+			float x = (float(rand())/RAND_MAX)*2 - 1;
+			float y = (float(rand())/RAND_MAX)*2 - 1;
+			float z = (float(rand())/RAND_MAX)*2 - 1;
+
+			Vector P0(x, y, z);
+			Vector P1 = P0.unitvector();
+
+			float R = std::pow(std::abs(fspn1->eval(P0)),particles[i].wispRadialGroup);
+
+			Vector P3 = P1 * R;
+
+			Vector tbn_adj = P3.X() * particles[i].tangent
+				 	+P3.Y() * particles[i].normal
+					+P3.Z() * particles[i].binormal;
+			Vector P4 = particles[i].P + particles[i].pscale * tbn_adj;
+
+			Vector offset	(1, 0, 0);
+			Vector D	(fspn2->eval(P3), fspn2->eval(P3 + offset), fspn2->eval(P3 - offset));
+
+			Vector P5 = P4 + D;
+
+			int   ix, iix, iy, iiy, iz, iiz;
+			float wx, wwx, wy, wwy, wz, wwz;
+			
+			//std::cout << "Vector" << P5.__str__() << std::endl;
+			grid->getLinearInterpolation(P5, ix, iix, wx, wwx, iy, iiy, wy, wwy, iz, iiz, wz, wwz);
+
+			grid->getGridIndex(P5, ix, iy, iz);
+
+			//std::cout << "weight sum = " << 	   wx*wy*wz +  wx*wwy*wz +  wx*wy*wwz +  wx*wwy*wwz
+			//					+ wwx*wy*wz + wwx*wwy*wz + wwx*wy*wwz + wwx*wwy*wwz << std::endl;
+
+			grid->set( ix,  iy,  iz, grid->get( ix,  iy,  iz) + (1.0 * wwx*wwy*wwz) );
+			grid->set( ix, iiy,  iz, grid->get( ix, iiy,  iz) + (1.0 * wwx* wy*wwz) );
+			grid->set( ix,  iy, iiz, grid->get( ix,  iy, iiz) + (1.0 * wwx*wwy* wz) );
+			grid->set( ix, iiy, iiz, grid->get( ix, iiy, iiz) + (1.0 * wwx* wy* wz) );
+			
+			grid->set(iix,  iy,  iz, grid->get(iix,  iy,  iz) + (1.0 *  wx*wwy*wwz) );
+			grid->set(iix, iiy,  iz, grid->get(iix, iiy,  iz) + (1.0 *  wx* wy*wwz) );
+			grid->set(iix,  iy, iiz, grid->get(iix,  iy, iiz) + (1.0 *  wx*wwy* wz) );
+			grid->set(iix, iiy, iiz, grid->get(iix, iiy, iiz) + (1.0 *  wx* wy* wz) );
+		}
 	}
 }
 

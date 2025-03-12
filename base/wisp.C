@@ -18,7 +18,7 @@
 #include "Vector.h"
 
 using namespace lux;
-Noise_t gen_pyronoise(int i);
+Noise_t gen_wisp(int i);
 
 int main(int argc, char *argv[])
 {
@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 	int start_frame = 0;
 	int end_frame   = 0;
 	bool renderdsm  = false;
-	std::string filename = "pyroclastic_sphere";
+	std::string filename = "wisp";
 	int opt;
 	while( (opt = getopt(argc, argv, "s:e:d")) != -1)
 	{
@@ -95,24 +95,30 @@ int main(int argc, char *argv[])
 		std::string framename = prefix + "_" + padded_num;
 		
 
-		ScalarField pyro;
-
-//		std::cout << octaves << " " << frequency << " " << fjump << " " << gamma << std::endl;
-//		continue;
-
 		AnchorChain particles;
-		particles.push_back(gen_pyronoise(i));
+                Noise_t p = gen_wisp(i);
+		particles.push_back(p);
+
 
 		int res = 500;
 		ScalarGrid grid = ScalarGrid(new SGrid<float>);
 		grid->init(res, res, res, box_size*2, box_size*2, box_size*2, llc);
 
-		StampPyro(grid, particles);
+                StampPointWisps(grid, particles);
+                for(int j=0; j<grid->ny(); j++)
+                {
+                        for(int i=0; i<grid->nx(); i++)
+                        {
+                //                std::cout << grid->get(i, j, grid->nz()/2) << " ";
+                        }
+		//	std::cout << std::endl;
+		}
 
-		pyro = volumize(grid);
+		ScalarField wisp = volumize(grid);
 
-		d.densityField = clamp(pyro, 0.0, 1.0);
-		d.densityField = d.densityField * 40;
+		d.densityField = clamp(wisp, 0.0, .5);
+                //d.densityField = wisp;
+		d.densityField = d.densityField *10;
 
 		// Render
 		if(renderdsm)
@@ -129,41 +135,52 @@ int main(int argc, char *argv[])
 		} 
 		
 		ProgressMeter progress(d.Ny()*d.Nx(), framename);
-		
+	
+		std::cout << "Render?" << std::endl;
 		if(renderdsm)
 		  RenderFrame(&d, progress, image, RayMarchDSM);
 		else
 		  RenderFrame(&d, progress, image, RayMarchEmission);
 
+		std::cout << "Render." << std::endl;
+
 		// Write to file
 		std::string name = "images/" + framename + ".exr";
+		std::cout << "Nsize " << Nsize << std::endl;
 		img::write(name, image, d.Nx(), d.Ny(), d.Nc());
 	}
 }
 
 
-Noise_t gen_pyronoise(int i)
+Noise_t gen_wisp(int i)
 {
 	
-	float octaves = i / 100;
-	octaves = remap(octaves, 0, 4, 1., 3.);
+	float octaves = i / 125;
+	octaves = remap(octaves, 0, 3, 2., 4.);
 
-	float frequency = (i / 20) % 5;
-	frequency = remap(frequency, 0, 3, 1., 4.);
+	float frequency = (i % 125) / 25;
+	frequency = remap(frequency, 0, 4, 1., 4.);
 
-	float fjump = (i / 5) % 5;
+	float fjump = (i / 25) / 5;
 	fjump = remap(fjump, 0, 4, 1., 3.);
 
-	float gamma = i % 5;
-	gamma = remap(gamma, 4, 0, 1/4., 2.0);
+	float clump = i % 5;
+	clump = remap(clump, 4, 0, 1/4., 2.0);
+
+        octaves = 3;
+        frequency = 2;
+        fjump = 2;
+        clump = 1;
 
 	Noise_t noise;
 	noise.octaves = octaves;
 	noise.frequency = frequency;
 	noise.fjump = fjump;
-	noise.gamma = gamma;
-	noise.radius = 0.3;
-	noise.amplitude = .3;
+        noise.wispFreq = 2;
+	noise.nbWisps = 5000000;
+	noise.wispRadialGroup = clump;
+	noise.radius = 0.2;
+	noise.amplitude = .2;
 
 	return noise;
 }
