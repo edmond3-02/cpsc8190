@@ -19,7 +19,7 @@ void RenderFrame(const RenderData* d, ProgressMeter& pm, float* image, std::func
 	#pragma omp parallel for
 		for(int i=0;i<d->Nx();i++)
 		{
-//			pm.update();
+			pm.update();
 
 			double x = (double)i/double(d->Nx());
 			Vector direction = d->camera.view(x,y);

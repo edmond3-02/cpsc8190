@@ -88,6 +88,7 @@ class SGrid: public RectangularGrid
  
    void set( int i,int j,int k, const T& val )
    {
+         if(!isInside(i, j, k)) return;
          long myIndex = sindex(i, j, k);  
          if(data[myIndex] == NULL)
      {
@@ -352,7 +353,7 @@ void Blur( SGrid<T>& g )
       {
          for( int i=0;i<g.nx();i++ )
          {
-        temp.set( g.get(i,j,k), i,j,k);
+        temp.set( i,j,k, g.get(i,j,k));
         meter.update();
          }
       }
@@ -392,7 +393,7 @@ void Blur( SGrid<T>& g )
            }
         }
         sum = sum/nb;
-        g.set(sum, i,j,k);
+        g.set(i,j,k, sum);
         meter.update();
          }
       }

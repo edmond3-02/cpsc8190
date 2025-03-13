@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 	bool renderdsm  = false;
 	std::string filename = "noise_sphere";
 	int opt;
-	while( (opt = getopt(argc, argv, "s:e:")) != -1)
+	while( (opt = getopt(argc, argv, "ds:e:")) != -1)
 	{
 		switch(opt)
 		{
@@ -154,28 +154,25 @@ int main(int argc, char *argv[])
 
 Noise_t gen_pnoise(int i)
 {
-        int xl = 3;
-        int x = 500 / xl;
-        int yl = 4;
-        int y = x / yl;
-        int zl = 4;
-        int z = y / zl;
 
-        int a = i / x;
-	float fade = remap(a, xl - 1, 0, 1, 4.0);
+	float fade = i / 125;
+	fade = remap(fade, 0, 3, 1, 16.0);
 
-	int b = (i % x) / y;
-        float frequency = remap(b, 0, yl - 1, 2., 5.);
+	float frequency = (i % 125) / 25;
+	frequency = remap(frequency, 0, 4, 3., 5.);
 
-	int c = (i % y) / z;
-        float fjump = remap(c, zl - 1, 0, 1., 3.);
+	float fjump = (i % 25) / 5;
+	fjump = remap(fjump, 0, 4, 1., 3.);
 
-        int d = i % z;
-	float octaves = remap(d, 0, z, 1., 3.);
+	float octaves = i % 5;
+	octaves = remap(octaves, 0, 4, 2., 4.);
 
-        //std::cout << a << " " << b << " " << c << " " << d <<std::endl;
+        //fade = float(i)/2.0;
+        //frequency = 4;
+        //fjump = 2;
+        //octaves = 4;
 
-	Noise_t noise;
+        Noise_t noise;
 	noise.octaves = octaves;
 	noise.frequency = frequency;
 	noise.fjump = fjump;

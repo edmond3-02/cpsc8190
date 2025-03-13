@@ -52,41 +52,40 @@ int main(int argc, char *argv[])
 	Vector llc = Vector(-box_size,-box_size,-box_size);
 	float modelscale = 1.0;
 	float cam_dist = 1;
-	RenderData d;
-	d.kappa = 10;
-	d.resolution[0] = 960;
-	d.resolution[1] = 540;
+	RenderData render_data;
+	render_data.kappa = 10;
+	render_data.resolution[0] = 960;
+	render_data.resolution[1] = 540;
 	cam_dist = 2;
-	d.snear = 1.4;
-	d.sfar = 2.6;
-	d.ds = 0.01;
+	render_data.snear = 1.4;
+	render_data.sfar = 2.6;
+	render_data.ds = 0.003;
 	
-	ColorField color = constant(Color(1,1,1,1));
-  	d.colorField = color;
+  	render_data.colorField = constant(Color(1,1,1,1));
 
+	render_data.lightPosition = {Vector(0,-1,1),  Vector(.3,1,.3),  Vector(-2,2,-1)*2};
+	render_data.lightColor    = {Color(1,1,1,1), Color(0,0,.5,1), Color(0,.3,0.0,1)};
+	render_data.lightPosition.resize(2);
+	render_data.lightColor.resize(2);
 
-	d.lightPosition = {Vector(0,-1,1),  Vector(.3,1,.3),  Vector(-2,2,-1)*2};
-	d.lightColor    = {Color(1,1,1,1), Color(0,0,.5,1), Color(0,.3,0.0,1)};
-	d.lightPosition.resize(1);
-	d.lightColor.resize(1);
-
-	int dsmRes = 100;	
+	int dsmRes = 250;	
 	Vector gridDims = (urc - llc);
 		
 
 	std::string prefix = filename;
 	for(int i=start_frame; i<=end_frame; i++)
 	{
+
 		// Camera settings
 		float rot = 0/120.0;
 		Vector eye(cam_dist*sin((rot)*2*3.14159265359), 0.0, cam_dist*cos((rot)*2*3.14159265359)); 
 		Vector up(0.0, 1.0, 0.0);
 		Vector dir = -eye;
 		dir[1] = 0;
-		d.camera.setEyeViewUp(eye, dir, up);
+		render_data.camera.setEyeViewUp(eye, dir, up);
 
 		// Image allocation
-		int Nsize = d.Nx() * d.Ny() * d.Nc();
+		int Nsize = render_data.Nx() * render_data.Ny() * render_data.Nc();
 		float* image = new float[Nsize];
 
 		// Pad number for filename
@@ -105,49 +104,37 @@ int main(int argc, char *argv[])
 		grid->init(res, res, res, box_size*2, box_size*2, box_size*2, llc);
 
                 StampPointWisps(grid, particles);
-                for(int j=0; j<grid->ny(); j++)
-                {
-                        for(int i=0; i<grid->nx(); i++)
-                        {
-                //                std::cout << grid->get(i, j, grid->nz()/2) << " ";
-                        }
-		//	std::cout << std::endl;
-		}
-
+//                Blur(*grid);
 		ScalarField wisp = volumize(grid);
 
-		d.densityField = clamp(wisp, 0.0, .5);
-                //d.densityField = wisp;
-		d.densityField = d.densityField *10;
 
+                
+		render_data.densityField = clamp(wisp, 0.0, 1);
+                
 		// Render
 		if(renderdsm)
 		{
-			d.dsmField.resize(0);
-			for (int j=0; j<d.lightPosition.size();j++)
+			render_data.dsmField.resize(0);
+			for (int j=0; j<render_data.lightPosition.size();j++)
 			{
 				ScalarGrid dsm = ScalarGrid(new SGrid<float>);
 				dsm->init(dsmRes, dsmRes, dsmRes, gridDims.X(), gridDims.Y(), gridDims.Z(), llc);
 				dsm->setDefVal(0.0);
 			
-				d.dsmField.push_back(RayMarchDSMAccumulation(&d, d.densityField, d.lightPosition[j], d.ds, dsm));
+				render_data.dsmField.push_back(RayMarchDSMAccumulation(&render_data, render_data.densityField, render_data.lightPosition[j], render_data.ds, dsm));
 			}
 		} 
 		
-		ProgressMeter progress(d.Ny()*d.Nx(), framename);
+		ProgressMeter progress(render_data.Ny()*render_data.Nx(), framename);
 	
-		std::cout << "Render?" << std::endl;
 		if(renderdsm)
-		  RenderFrame(&d, progress, image, RayMarchDSM);
+		  RenderFrame(&render_data, progress, image, RayMarchDSM);
 		else
-		  RenderFrame(&d, progress, image, RayMarchEmission);
-
-		std::cout << "Render." << std::endl;
+		  RenderFrame(&render_data, progress, image, RayMarchEmission);
 
 		// Write to file
 		std::string name = "images/" + framename + ".exr";
-		std::cout << "Nsize " << Nsize << std::endl;
-		img::write(name, image, d.Nx(), d.Ny(), d.Nc());
+		img::write(name, image, render_data.Nx(), render_data.Ny(), render_data.Nc());
 	}
 }
 
@@ -161,26 +148,22 @@ Noise_t gen_wisp(int i)
 	float frequency = (i % 125) / 25;
 	frequency = remap(frequency, 0, 4, 1., 4.);
 
-	float fjump = (i / 25) / 5;
+	float fjump = (i % 25) / 5;
 	fjump = remap(fjump, 0, 4, 1., 3.);
 
 	float clump = i % 5;
-	clump = remap(clump, 4, 0, 1/4., 2.0);
+	clump = remap(clump, 4, 0, 0.25, 2.0);
 
-        octaves = 3;
-        frequency = 2;
-        fjump = 2;
-        clump = 1;
 
 	Noise_t noise;
-	noise.octaves = octaves;
+	noise.octaves = 2 * octaves;
 	noise.frequency = frequency;
 	noise.fjump = fjump;
+        noise.pscale = (5 - (i%5))*0.1;
+	noise.wispOctaves = 3;
         noise.wispFreq = 2;
 	noise.nbWisps = 5000000;
 	noise.wispRadialGroup = clump;
-	noise.radius = 0.2;
-	noise.amplitude = .2;
 
 	return noise;
 }

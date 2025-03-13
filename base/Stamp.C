@@ -154,14 +154,13 @@ void StampPointWisps( ScalarGrid& grid, const AnchorChain& particles )
 			int   ix, iix, iy, iiy, iz, iiz;
 			float wx, wwx, wy, wwy, wz, wwz;
 			
-			//std::cout << "Vector" << P5.__str__() << std::endl;
 			grid->getLinearInterpolation(P5, ix, iix, wx, wwx, iy, iiy, wy, wwy, iz, iiz, wz, wwz);
 
 			grid->getGridIndex(P5, ix, iy, iz);
 
 			//std::cout << "weight sum = " << 	   wx*wy*wz +  wx*wwy*wz +  wx*wy*wwz +  wx*wwy*wwz
 			//					+ wwx*wy*wz + wwx*wwy*wz + wwx*wy*wwz + wwx*wwy*wwz << std::endl;
-
+//			std::cout << "Position: " << j << " " << P5.__str__() << std::endl;
 			grid->set( ix,  iy,  iz, grid->get( ix,  iy,  iz) + (1.0 * wwx*wwy*wwz) );
 			grid->set( ix, iiy,  iz, grid->get( ix, iiy,  iz) + (1.0 * wwx* wy*wwz) );
 			grid->set( ix,  iy, iiz, grid->get( ix,  iy, iiz) + (1.0 * wwx*wwy* wz) );

@@ -145,13 +145,13 @@ int main(int argc, char *argv[])
 Noise_t gen_pyronoise(int i)
 {
 	
-	float octaves = i / 100;
-	octaves = remap(octaves, 0, 4, 1., 3.);
+	float octaves = i / 125;
+	octaves = remap(octaves, 0, 3, 2., 4.);
 
-	float frequency = (i / 20) % 5;
-	frequency = remap(frequency, 0, 3, 1., 4.);
+	float frequency = (i % 125) / 25;
+	frequency = remap(frequency, 0, 4, 1., 4.);
 
-	float fjump = (i / 5) % 5;
+	float fjump = (i % 25) / 5;
 	fjump = remap(fjump, 0, 4, 1., 3.);
 
 	float gamma = i % 5;
