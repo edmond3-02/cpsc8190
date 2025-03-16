@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 
 
                 
-		render_data.densityField = clamp(wisp, 0.0, 1);
+		render_data.densityField = clamp(wisp, 0.0, 0.5) * 5.0;
                 
 		// Render
 		if(renderdsm)
