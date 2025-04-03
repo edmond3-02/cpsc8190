@@ -16,23 +16,41 @@ void StampField( VolumeGrid<float>& grid, Volume<float>* field )
 
 void StampField( ScalarGrid& grid, ScalarField& field )
 {
-	std::cout << "dim: " << grid->nx() << " " << grid->ny() << " " << grid->nz() << std::endl;
+	//ProgressMeter prog((grid->nx()*grid->ny())*2, "Stamp Field" );
+	#pragma omp parallel for
 	for(int i=0; i<grid->nx();i++)
 	{
 		for(int j=0; j<grid->ny();j++)
 		{
+	//		prog.update();
 			for(int k=0; k<grid->nz();k++)
-			{;
+			{
 				Vector pos = grid->evalP(i,j,k);
 				float val  = field->eval(pos);
-				//std::cout<<val << " ";
 				grid->set(i,j,k,val);
 			}
-			//std::cout<<std::endl;
 		}
-		//std::cout << std::endl;
 	}
 	
+}
+
+void StampField( VectorGrid& grid, VectorField& field )
+{
+	//ProgressMeter prog((grid->nx()*grid->ny())*2, "Stamp Field" );
+	#pragma omp parallel for
+	for(int i=0; i<grid->nx();i++)
+	{
+		for(int j=0; j<grid->ny();j++)
+		{
+	//		prog.update();
+			for(int k=0; k<grid->nz();k++)
+			{
+				Vector pos = grid->evalP(i,j,k);
+				Vector val  = field->eval(pos);
+				grid->set(i,j,k,val);
+			}
+		}
+	}
 }
 
 

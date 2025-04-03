@@ -5,6 +5,7 @@
 using namespace std;
 using namespace lux;
 
+// CONSTANT
 ConstantVectorVolume::ConstantVectorVolume( const Vector& v ) { value = v; gradvalue = Matrix();}
 
 const Vector ConstantVectorVolume::eval( const Vector& P ) const
@@ -17,27 +18,26 @@ const Matrix ConstantVectorVolume::grad( const Vector& P ) const
 	return gradvalue;
 }
 
+// ADD
 AddVectorVolume::AddVectorVolume( const VectorField& v1, const VectorField& v2 ) :
       elem1(v1),
       elem2(v2)
     {}
 
+const Vector AddVectorVolume::eval( const Vector& P ) const
+{
+	return  elem1->eval(P) + elem2->eval(P);
+}
 
-
-    const Vector AddVectorVolume::eval( const Vector& P ) const
-    {
-       return  elem1->eval(P) + elem2->eval(P);
-    }
-
-    const Matrix AddVectorVolume::grad( const Vector& P ) const
-    {
-       return  elem1->grad(P) + elem2->grad(P);
-    }
-
+const Matrix AddVectorVolume::grad( const Vector& P ) const
+{
+	return  elem1->grad(P) + elem2->grad(P);
+}
 
 
 
 
+// GRADIENT
 GradientVectorVolume::GradientVectorVolume( Volume<float>* v, const float dx ) :
       elem(v),
       step(dx)
@@ -47,7 +47,6 @@ GradientVectorVolume::GradientVectorVolume( const ScalarField& v, const float dx
       elem(v),
       step(dx)
     {}
-
 
 const Vector GradientVectorVolume::eval( const Vector& P ) const { return elem->grad(P); }
 
@@ -67,5 +66,86 @@ const Matrix GradientVectorVolume::grad( const Vector& P ) const
    return result.transpose();
 }
 
+// ITERATED NEAREST POINT
+ImplicitPointVectorVolume::ImplicitPointVectorVolume( const ScalarField& v, const float dx, const int nb, const float thresh) :
+	elem(v),
+	step(dx),
+	nbIterations(nb),
+	threshold(thresh)
+{}
 
+const Vector ImplicitPointVectorVolume::eval( const Vector& P ) const
+{
+	Vector CPT = P;
+
+	if(nbIterations == 0)
+	{
+		CPT -= elem->eval(CPT) * elem->grad(CPT);
+	} else
+	{
+		for(int i=0; i<nbIterations; i++)
+		{
+			Vector g = elem->grad(CPT);
+			CPT -= (elem->eval(CPT) * g) / (g * g);
+		}
+	}
+
+	return CPT;
+}
+
+// ADVECT
+AdvectVectorVolume::AdvectVectorVolume( const VectorField& v, const VectorField& u, const float delt ):
+	elem(v),
+	velocity(u),
+	dt(delt)
+      {}
+
+const Vector AdvectVectorVolume::eval( const Vector& P ) const
+{
+	Vector X = P - (velocity->eval(P))*dt;
+	return elem->eval(X);
+}
+
+// WARP
+WarpVectorVolume::WarpVectorVolume( Volume<Vector>* v, Volume<Vector>* u ) :
+	elem(v),
+	warp(u)
+      {}
+
+WarpVectorVolume::WarpVectorVolume( const VectorField& v, const VectorField& u ):
+	elem(v),
+	warp(u)
+      {}
+
+const Vector WarpVectorVolume::eval( const Vector& P ) const
+{
+	Vector X = warp->eval(P);
+	return elem->eval(X);
+}
+
+// NOISE
+NoiseVectorVolume::NoiseVectorVolume( Noise* n, const float d ) :
+	noise(n),
+	dx(d)
+{}
+
+NoiseVectorVolume::NoiseVectorVolume( NoiseMachine n, const float d ) :
+	noise(n),
+	dx(d)
+{}
+
+const Vector NoiseVectorVolume::eval( const Vector& P ) const
+{
+	return Vector(noise->eval(P), noise->eval(Vector(P.Y(), P.Z(), P.X())), noise->eval(Vector(P.Y(), P.Z(), P.X())) );
+}
+
+// GRID
+GriddedSGridVectorVolume::GriddedSGridVectorVolume( const VectorGrid& g ):
+	elem(g)
+      {}
+
+const Vector GriddedSGridVectorVolume::eval( const Vector& P ) const
+{
+	return elem->eval(P);
+}
 

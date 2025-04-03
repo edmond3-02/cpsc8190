@@ -126,6 +126,19 @@ const float EllipseVolume::eval( const Vector& P ) const
    return f;
 }
 
+AdvectVolume::AdvectVolume( const ScalarField& v, const VectorField& u, const float delt ):
+	elem(v),
+	velocity(u),
+	dt(delt)
+      {}
+
+const float AdvectVolume::eval( const Vector& P ) const
+{
+	Vector X = P - ( velocity->eval(P) ) * dt;
+	return elem->eval(X);
+}
+
+
 CsgBoxVolume::CsgBoxVolume( const Vector& cen, const float rad, float pwr) :
        center       (cen),
        radius       (rad),
@@ -142,6 +155,7 @@ const float CsgBoxVolume::eval( const Vector& P ) const
 
    return f;
 }
+
 
 ConeVolume::ConeVolume( const Vector& cen, const Vector& axs, const float h, const float theta ) :
        center       (cen),
@@ -373,6 +387,34 @@ const float CutoutVolume::eval( const Vector& P ) const
    return  std::min(e1->eval(P), -e2->eval(P));
 }
 
+PyroclasticVolume::PyroclasticVolume( const NoiseMachine n, const ScalarField e, const float Amp, const int i, const float Gamma ) :
+						noise(n),
+						elem(e),
+						amplitude(Amp),
+						iter(i),
+						gamma(Gamma)
+	{}
+
+const float PyroclasticVolume::eval(const Vector& P) const
+{
+	Vector Xc = P;
+	if(iter == 0)
+	{
+		Xc -= elem->eval(Xc) * elem->grad(Xc);
+	} else
+	{
+		for(int i=0; i<iter; i++)
+		{
+			Vector g = elem->grad(Xc);
+			Xc -= (elem->eval(Xc) * g) / (g * g);
+		}
+	}
+
+	return elem->eval(P) + std::pow(std::abs(noise->eval(Xc)), gamma) * amplitude;
+
+}
+				      		
+
 RadialPyroclasticVolume::RadialPyroclasticVolume( const Vector& Center, const float Radius, const float Amp, 
 						  const float octaves,  const float freq,   const float rough, 
 						  const float trans,    const float time,   const float Gamma ) :
@@ -435,4 +477,24 @@ GriddedSGridVolume::GriddedSGridVolume( const ScalarGrid& g ):
 const float GriddedSGridVolume::eval( const Vector& P ) const
 {
 	return scgrid->eval(P);
+}
+
+
+WarpVolume::WarpVolume( const ScalarField& v, VectorField& map ):
+	elem(v),
+	mapX(map)
+      {}
+
+
+const float WarpVolume::eval( const Vector& P ) const
+{
+	Vector X = mapX->eval(P);
+	return elem->eval(X);
+}
+
+const Vector WarpVolume::grad(  const Vector& P ) const
+{
+	Vector X = mapX->eval(P);
+	Matrix gX = mapX->grad(P);
+	return gX * elem->grad(X);
 }

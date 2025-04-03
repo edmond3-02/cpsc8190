@@ -99,8 +99,8 @@ ScalarField Plane( const Vector cen, const Vector norm );
 ScalarField Torus( const Vector& cen, const Vector& axis, const float majorRad, const float minorRad );
 ScalarField SteinerPatch(); 
 ScalarField Icosahedron();
-//ScalarField Cylinder( const Vector axis, const float rad );
-//ScalarField CappedCylinder( const Vector cen, const Vector axis, const float length, const float radius );
+ScalarField Cylinder( const Vector axis, const float rad );
+ScalarField CappedCylinder( const Vector cen, const Vector axis, const float length, const float radius );
 
 ScalarField mask( const ScalarField& v );
 ScalarField clamp( const ScalarField& v, float minv, float maxv );
@@ -126,23 +126,26 @@ ScalarField Shell( const ScalarField& v, const float thickness );
 //MatrixField outer( const VectorField& v1, const VectorField& v2 );
 //MatrixField inverse( const MatrixField& m );
 
+
+ScalarField Pyroclast(  const ScalarField e, const NoiseMachine n, const float Amp, const int i, const float Gamma = 1.0/3.0  );
+
 ScalarField RadialPyroclast( const Vector& Center, const float Radius, const float Amp, 
                               const float octaves, const float freq, const float rough, 
                               const float trans, const float time, const float Gamma = 1.0/3.0 );
 
-//ScalarField gridded( const ScalarGrid& g );
-//VectorField gridded( const VectorGrid& g );
+ScalarField gridded( const ScalarGrid& g );
+VectorField gridded( const VectorGrid& g );
 //ColorField  gridded( const ColorGrid& g );
 //MatrixField gridded( const MatrixGrid& g );
 
 
-//ScalarField advect( const ScalarField& v, const VectorField& u, const float delt ); 
+ScalarField advect( const ScalarField& v, const VectorField& u, const float delt ); 
 //VectorField advect( const VectorField& v, const VectorField& u, const float delt ); 
 //ColorField  advect( const ColorField& v, const VectorField& u, const float delt ); 
 //MatrixField advect( const MatrixField& v, VectorField& u, const float delt ); 
 
-//ScalarField warp( const ScalarField& v, VectorField& map );
-//VectorField warp( const VectorField& v, VectorField& map );
+ScalarField warp( const ScalarField& v, VectorField& map );
+VectorField warp( const VectorField& v, VectorField& map );
 //ColorField  warp( const ColorField& v, VectorField& map );
 //MatrixField warp( const MatrixField& v, VectorField& map );
 
@@ -178,6 +181,7 @@ ScalarField RadialPyroclast( const Vector& Center, const float Radius, const flo
 ScalarField volumize(const ScalarGrid& g);
 
 ScalarField SFNoise( NoiseMachine n, const float d = 0.01 );
+VectorField VFNoise( NoiseMachine n, const float d = 0.01 );
 
 }
 
