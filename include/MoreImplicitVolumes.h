@@ -118,10 +118,10 @@
         elem ( new IntersectionVolume( 
                          ScalarField( new IntersectionVolume( 
                                 ScalarField( ScalarField( new TranslateVolume( ScalarField(new InfiniteCylinder( axis.unitvector(), radius)), cen)) ), 
-                                ScalarField( new PlaneVolume( cen+axis.unitvector()*length/2.0, -axis.unitvector() ) )  
+                                ScalarField( new PlaneVolume( cen+axis.unitvector()*length/2.0, axis.unitvector() ) )  
                        ) 
                       ) ,   
-                         ScalarField( new PlaneVolume( cen-axis.unitvector()*length/2.0, axis.unitvector()  ) )    
+                         ScalarField( new PlaneVolume( cen-axis.unitvector()*length/2.0, -axis.unitvector()  ) )    
          )       
      )
      {}

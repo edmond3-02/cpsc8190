@@ -77,6 +77,7 @@ ScalarField mask( const ScalarField& v ) { return ScalarField( new MaskVolume(v)
 ScalarField clamp( const ScalarField& v, float minv, float maxv ) { return ScalarField( new ClampVolume(v, minv, maxv)); }
 ScalarField pow( const ScalarField& v, float gam ) { return ScalarField( new GammaVolume(v, gam)); }
 ScalarField pow( const ScalarField& v, const ScalarField& gam ) { return ScalarField( new GammaVolume(v, gam)); }
+ScalarField BlinnBlend( const ScalarField& v1, const ScalarField& v2, const float _alpha ) { return ScalarField( new BlinnBlendVolume(v1, v2, _alpha)); }
 ScalarField Union( const ScalarField& v1, const ScalarField& v2 ) { return ScalarField( new UnionVolume( v1, v2) ) ; }
 ScalarField intersection( const ScalarField& v1, const ScalarField& v2 ) { return ScalarField( new IntersectionVolume( v1, v2) ) ; }
 ScalarField cutout( const ScalarField& v1, const ScalarField& v2 ) { return ScalarField( new CutoutVolume(v1, v2) ) ;}

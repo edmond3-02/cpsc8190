@@ -50,14 +50,12 @@ int main(int argc, char *argv[])
 	}
 
 	float box_size = .5;
-	Vector urc = Vector(box_size,box_size,box_size);
-	Vector llc = Vector(-box_size,-box_size,-box_size);
 	float modelscale = 1.0;
 	RenderData render_data;
 	render_data.kappa = 10;
 	render_data.resolution[0] = 960;
 	render_data.resolution[1] = 540;
-	render_data.ds = 0.004;
+	render_data.ds = 0.003;
 	float cam_dist = 4;
 	
 	render_data.colorField = constant(Color(1,1,1,1));
@@ -98,7 +96,7 @@ int main(int argc, char *argv[])
 	float cal_res = 100;
 	float cal_width=.4, cal_height=1.5;
 	cal_grid->init(cal_res, cal_res, cal_res, cal_width*2, cal_height, cal_width*2, -Vector(cal_width, cal_height/2, cal_width));
-	//StampField(cal_grid, caldera);
+	StampField(cal_grid, caldera);
 	caldera = gridded(cal_grid);
 	caldera = translate(caldera, caldera_cen);
 
@@ -119,27 +117,39 @@ int main(int argc, char *argv[])
 	bridge = Pyroclast(bridge, bridge_noise_m, .005, 3, 1);
 	ScalarGrid bridge_grid = ScalarGrid(new SGrid<float>);
 	bridge_grid->setDefVal(0.0);
-	float bridge_res = 200;
+	float bridge_res = 100;
 	float bridge_width=.5, bridge_height=.5;
 	bridge_grid->init(bridge_res, bridge_res, bridge_res, bridge_width*2, bridge_height+bridge_height/4.0, bridge_width*2, -Vector(bridge_width, bridge_height, bridge_width));
-	//StampField(bridge_grid, bridge);
+	StampField(bridge_grid, bridge);
 	bridge = gridded(bridge_grid)*10;
 	bridge = translate(bridge, Vector(.4, 0.1, .8));
 
 
+	// CAVE 
+	Noise_t cave_noise;
+	cave_noise.translate = Vector(-.4,0,-.5);
+	cave_noise.octaves = 2;
+	cave_noise.frequency = 6;
+	cave_noise.fjump = 2;
+	NoiseMachine cave_noise_m = perlin(cave_noise);
+
+	float cave_len = 1.;
+	ScalarField cave = Ellipse(Vector(0,0,0), Vector(0,1,0), cave_len/2, .2);
+	cave = Pyroclast(cave, cave_noise_m, -.13, 3, 1);
+	ScalarGrid cave_grid = ScalarGrid(new SGrid<float>);
+	cave_grid->setDefVal(-0.1);
+	float cave_res = 200;
+	float cave_width=.2, cave_height=cave_len/2.0;
+	cave_grid->init(cave_res, cave_res, cave_res, cave_width*2, cave_height*2, cave_width*2, -Vector(cave_width, cave_height, cave_width));
+	StampField(cave_grid, cave);
+	cave = gridded(cave_grid)*10;
+	cave = rotate(cave, -3.1415/3.0, Vector(1, 0, 1));
+	cave = translate(cave, Vector(.8, -0.3, -.4)) * 10;
+	
 	// AJAX
 	ScalarField ajax;
 	Mesh ajax_mesh;
-	makeObjVolume("models/ajax/smallajax.obj", ajax, ajax_mesh, 80);
-	urc = ajax_mesh->URC();
-	llc = ajax_mesh->LLC();
-	ScalarGrid ajax_grid = ScalarGrid(new SGrid<float>);
-	ajax_grid->setDefVal(0.0);
-	float ajax_res = 600;
-	float ajax_width=10, ajax_height=30;
-	ajax_grid->init(ajax_res, ajax_res, ajax_res, ajax_width*2, ajax_height*2, ajax_width*2, -Vector(ajax_width, ajax_height, ajax_width));
-	StampField(ajax_grid, ajax);
-	ajax = gridded(ajax_grid);
+	makeObjVolume("models/ajax/smallajax.obj", ajax, ajax_mesh, 150);
 	modelscale = .01;
 	ajax = scale(ajax, Vector(modelscale, modelscale, modelscale));
 	ajax = rotate(ajax, 0.5, Vector(1, 0, 1).unitvector());
@@ -153,12 +163,12 @@ int main(int argc, char *argv[])
 	land_grid->init(land_res, land_res, land_res, width*2, height+height/4.0, width*2, -Vector(width, height, width));
 	StampField(land_grid, land);
 	land = gridded(land_grid);
+	ScalarField cutter = Union(cave, caldera);
+	land = cutout(land, cutter);
 	//land = Union(land, bridge);
-	//land = cutout(land, caldera);
-
 
 	ScalarField all = land;
-	all = Union(land, ajax);
+	//all = Union(land, ajax);
 
 	// X cut
 	all = intersection(all, Plane(Vector(width,0,0), Vector(1,0,0)));
@@ -185,7 +195,7 @@ int main(int argc, char *argv[])
 
 	
 	// Render
-	int dsmRes = 500;	
+	int dsmRes = 400;	
 	if(renderdsm)
 	{
 		render_data.dsmField.resize(0);

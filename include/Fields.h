@@ -108,6 +108,7 @@ ScalarField pow( const ScalarField& v, float gam );
 ScalarField pow( const ScalarField& v, const ScalarField& gam );
 //ColorField  pow( const ColorField& v, float gam );
 //ColorField  pow( const ColorField& v, const ScalarField& gam );
+ScalarField BlinnBlend( const ScalarField& v1, const ScalarField& v2, const float _alpha = 1.0 );
 ScalarField Union( const ScalarField& v1, const ScalarField& v2 );
 ScalarField intersection( const ScalarField& v1, const ScalarField& v2 );
 ScalarField cutout( const ScalarField& v1, const ScalarField& v2 );

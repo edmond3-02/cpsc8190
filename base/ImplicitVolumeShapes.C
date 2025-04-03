@@ -403,11 +403,23 @@ const float PyroclasticVolume::eval(const Vector& P) const
 		Xc -= elem->eval(Xc) * elem->grad(Xc);
 	} else
 	{
+	// works?
+	/////////////////////////////////////////////
+		Vector g = elem->grad(Xc);
 		for(int i=0; i<iter; i++)
 		{
-			Vector g = elem->grad(Xc);
+			if(g*g == 0.0) break;
+			g = elem->grad(Xc);
 			Xc -= (elem->eval(Xc) * g) / (g * g);
 		}
+	// Doesn't. why?
+	//////////////////////////////////////////////	
+	/*	for(int i=0; i<iter; i++)
+		{
+			Vector g = elem->grad(Xc);
+			if(g*g == 0.0) break;
+			Xc -= (elem->eval(Xc) * g) / (g * g);
+		}*/
 	}
 
 	return elem->eval(P) + std::pow(std::abs(noise->eval(Xc)), gamma) * amplitude;
