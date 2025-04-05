@@ -442,6 +442,7 @@ class VectorGrid : public VectorGridBase
 {
   public:
  
+    VectorGrid();
     VectorGrid( SGrid<Vector>* f );
    ~VectorGrid();
  

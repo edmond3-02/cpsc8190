@@ -16,23 +16,41 @@ void StampField( VolumeGrid<float>& grid, Volume<float>* field )
 
 void StampField( ScalarGrid& grid, ScalarField& field )
 {
-	std::cout << "dim: " << grid->nx() << " " << grid->ny() << " " << grid->nz() << std::endl;
+	//ProgressMeter prog((grid->nx()*grid->ny())*2, "Stamp Field" );
+	#pragma omp parallel for
 	for(int i=0; i<grid->nx();i++)
 	{
 		for(int j=0; j<grid->ny();j++)
 		{
+	//		prog.update();
 			for(int k=0; k<grid->nz();k++)
-			{;
+			{
 				Vector pos = grid->evalP(i,j,k);
 				float val  = field->eval(pos);
-				//std::cout<<val << " ";
 				grid->set(i,j,k,val);
 			}
-			//std::cout<<std::endl;
 		}
-		//std::cout << std::endl;
 	}
 	
+}
+
+void StampField( VectorGrid& grid, VectorField& field )
+{
+	//ProgressMeter prog((grid->nx()*grid->ny())*2, "Stamp Field" );
+	#pragma omp parallel for
+	for(int i=0; i<grid->nx();i++)
+	{
+		for(int j=0; j<grid->ny();j++)
+		{
+	//		prog.update();
+			for(int k=0; k<grid->nz();k++)
+			{
+				Vector pos = grid->evalP(i,j,k);
+				Vector val  = field->eval(pos);
+				grid->set(i,j,k,val);
+			}
+		}
+	}
 }
 
 
@@ -102,6 +120,7 @@ void StampNoise( ScalarGrid& grid, const AnchorChain& particles )
 {
 	for(int i=0; i<particles.size(); i++)
 	{
+		std::cout << "Particle " << i << " at " << particles[i].P.__str__() << std::endl;
 		NoiseMachine noise = perlin(particles[i]);
 		stamp_noise(grid, noise, particles[i].P, particles[i].radius, particles[i].falloff);
 	}
@@ -178,6 +197,7 @@ void stamp_noise( ScalarGrid& grid, NoiseMachine& noise, const Vector& center, c
 {
 	// iterate over grid points
 	grid->setDefVal(0.0);
+	#pragma omp parallel for
 	for(int i=0; i<grid->nx();i++)
 	{
 		for(int j=0; j<grid->ny();j++)
@@ -198,8 +218,9 @@ void stamp_noise( ScalarGrid& grid, NoiseMachine& noise, const Vector& center, c
 
 				if( q != 0) 
 				{
+					float cval = grid->get(i,j,k);
 					float val  = noise->eval(pos);
-					grid->set(i,j,k,val * F);
+					grid->set(i,j,k,std::max(cval, val * F));
 				}
 			}
 		}

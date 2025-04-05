@@ -100,6 +100,7 @@ class SplineWispWanderer
 
 //void StampField( VolumeGrid<float>& grid, Volume<float>* field );
 void StampField( ScalarGrid& grid, ScalarField& field );
+void StampField( VectorGrid& grid, VectorField& field );
 void StampField( ScalarGrid& grid, ScalarField& field, int bandwidth);
  
  

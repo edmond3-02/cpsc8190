@@ -2,6 +2,7 @@
 #include "ImplicitVolumeShapes.h"
 #include "ImplicitVectorShapes.h"
 #include "ImplicitMatrixShapes.h"
+#include "MoreImplicitVolumes.h"
 #include "ImplicitColors.h"
 #include "Fields.h"
 #include "VolumizedGrid.h"
@@ -68,23 +69,39 @@ ScalarField Plane( const Vector cen, const Vector norm ) { return ScalarField( n
 ScalarField Torus( const Vector& cen, const Vector& axis, const float majorRad, const float minorRad ) { return ScalarField(new TorusVolume(cen, axis, majorRad, minorRad) ); }
 ScalarField SteinerPatch() { return ScalarField(new SteinerPatchVolume() ) ; }
 ScalarField Icosahedron() { return ScalarField( new IcosahedronVolume() ) ; }
+ScalarField Cylinder( const Vector axis, const float rad ) { return ScalarField( new InfiniteCylinder(axis, rad)); }
+ScalarField CappedCylinder( const Vector cen, const Vector axis, const float length, const float radius ) { return ScalarField( new ImplicitCylinder(cen, axis, length, radius)); }
 
 
 ScalarField mask( const ScalarField& v ) { return ScalarField( new MaskVolume(v));}
 ScalarField clamp( const ScalarField& v, float minv, float maxv ) { return ScalarField( new ClampVolume(v, minv, maxv)); }
 ScalarField pow( const ScalarField& v, float gam ) { return ScalarField( new GammaVolume(v, gam)); }
 ScalarField pow( const ScalarField& v, const ScalarField& gam ) { return ScalarField( new GammaVolume(v, gam)); }
+ScalarField BlinnBlend( const ScalarField& v1, const ScalarField& v2, const float _alpha ) { return ScalarField( new BlinnBlendVolume(v1, v2, _alpha)); }
 ScalarField Union( const ScalarField& v1, const ScalarField& v2 ) { return ScalarField( new UnionVolume( v1, v2) ) ; }
 ScalarField intersection( const ScalarField& v1, const ScalarField& v2 ) { return ScalarField( new IntersectionVolume( v1, v2) ) ; }
 ScalarField cutout( const ScalarField& v1, const ScalarField& v2 ) { return ScalarField( new CutoutVolume(v1, v2) ) ;}
 ScalarField Shell( const ScalarField& v, const float thickness ) { return ScalarField( new ShellVolume(v, thickness) ) ; }
 
+ScalarField Pyroclast(  const ScalarField e, const NoiseMachine n, const float Amp, const int i, const float Gamma )
+{return ScalarField(new PyroclasticVolume(n, e, Amp, i, Gamma)); }
 ScalarField RadialPyroclast( const Vector& Center, const float Radius, const float Amp, 
                               const float octaves, const float freq, const float rough, 
                               const float trans, const float time, const float Gamma ) 
 {  return ScalarField(new RadialPyroclasticVolume( Center, Radius, Amp, octaves, freq, rough, trans, time, Gamma)); }
 
+ScalarField gridded(const ScalarGrid& g) { return ScalarField( new GriddedSGridVolume( g ) ) ; }
+VectorField gridded( const VectorGrid& g ){ return VectorField( new GriddedSGridVectorVolume( g ) ) ; }
+
+ScalarField advect( const ScalarField& v, const VectorField& u, const float delt ) { return ScalarField( new AdvectVolume(v, u, delt)); }
+
+ScalarField warp( const ScalarField& v, VectorField& map ) { return ScalarField( new WarpVolume(v, map)); }
+VectorField warp( const VectorField& v, VectorField& map ) { return VectorField( new WarpVectorVolume(v, map)); }
+
+
 ScalarField SFNoise( NoiseMachine n, const float d ) { return ScalarField( new NoiseVolume(n, d)); } 
+VectorField VFNoise( NoiseMachine n, const float d ) { return VectorField( new NoiseVectorVolume(n, d)); } 
+
 
 ScalarField volumize(const ScalarGrid& g) { return ScalarField( new GriddedSGridVolume( g ) ) ; }
 

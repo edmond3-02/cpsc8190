@@ -58,3 +58,6 @@ wisp:
 
 renderer:
 	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/renderer.C $(INCLUDES) -L../build/lib lib/libstarter.a -lOpenImageIO -lOpenImageIO_Util -o bin/renderer
+
+terrain:
+	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/terrain.C $(INCLUDES) -L../build/lib lib/libstarter.a -lOpenImageIO -lOpenImageIO_Util -o bin/terrain

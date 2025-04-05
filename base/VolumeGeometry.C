@@ -45,6 +45,7 @@ void RayMarchLevelSet( const Mesh& geom, ScalarGrid& lsgrid, const int bandwidth
 		uj++;
 		uk++;
 
+		#pragma omp parallel for
 		for(int ci=li-bandwidth; ci<ui+bandwidth; ci++)
 		{
 			for(int cj=lj-bandwidth; cj<uj+bandwidth; cj++)
@@ -80,8 +81,8 @@ void RayMarchLevelSet( const Mesh& geom, ScalarGrid& lsgrid, const int bandwidth
 	// ITERATE GRID POINTS
 	for(int y=0; y<lsgrid->ny(); y++)
 	{
-		//SetSignProg.update();
-		//#pragma omp parallel for
+		SetSignProg.update();
+		#pragma omp parallel for
 		for(int x=0; x<lsgrid->nx(); x++)
 		{
 
