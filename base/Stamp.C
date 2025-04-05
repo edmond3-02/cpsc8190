@@ -120,6 +120,7 @@ void StampNoise( ScalarGrid& grid, const AnchorChain& particles )
 {
 	for(int i=0; i<particles.size(); i++)
 	{
+		std::cout << "Particle " << i << " at " << particles[i].P.__str__() << std::endl;
 		NoiseMachine noise = perlin(particles[i]);
 		stamp_noise(grid, noise, particles[i].P, particles[i].radius, particles[i].falloff);
 	}
@@ -196,6 +197,7 @@ void stamp_noise( ScalarGrid& grid, NoiseMachine& noise, const Vector& center, c
 {
 	// iterate over grid points
 	grid->setDefVal(0.0);
+	#pragma omp parallel for
 	for(int i=0; i<grid->nx();i++)
 	{
 		for(int j=0; j<grid->ny();j++)
@@ -216,8 +218,9 @@ void stamp_noise( ScalarGrid& grid, NoiseMachine& noise, const Vector& center, c
 
 				if( q != 0) 
 				{
+					float cval = grid->get(i,j,k);
 					float val  = noise->eval(pos);
-					grid->set(i,j,k,val * F);
+					grid->set(i,j,k,std::max(cval, val * F));
 				}
 			}
 		}
