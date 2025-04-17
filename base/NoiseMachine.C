@@ -2,8 +2,8 @@
 #include "PerlinNoise.h"
 
 
-namespace lux
-{
+using namespace lux;
+
 
 NoiseMachine perlin(Noise_t n)
 {
@@ -11,7 +11,6 @@ NoiseMachine perlin(Noise_t n)
 	noise->setParameters(n);
 	return noise;
 }
-
 NoiseMachine terrain(Noise_t n)
 {
 	NoiseMachine noise = NoiseMachine(new FractalTerrain<PerlinNoiseGustavson>());
@@ -19,4 +18,3 @@ NoiseMachine terrain(Noise_t n)
 	return noise;
 }
 
-}

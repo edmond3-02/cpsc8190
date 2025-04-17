@@ -150,7 +150,7 @@ const float CsgBoxVolume::eval( const Vector& P ) const
 {
    Vector x = P-center;
 
-   float f = std::pow(radius,power) - std::pow(x.X(),power) - std::pow(x.Y(),power) - std::pow(x.Z(),power);
+   float f = radius - std::pow(x.X(),power) - std::pow(x.Y(),power) - std::pow(x.Z(),power);
    
 
    return f;

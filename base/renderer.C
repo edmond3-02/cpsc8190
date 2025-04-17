@@ -6,23 +6,23 @@
 #include <iostream>
 #include <OpenImageIO/imageio.h>
 
-#include "Color.h"
-#include "Fields.h"
-#include "Vector.h"
 #include "Camera.h"
-#include "SparseGrid.h"
-#include "ProgressMeter.h"
-#include "Stamp.h"
-#include "RayMarcher.h"
-#include "ObjParser.h"
-#include "VolumeGeometry.h"
+#include "Color.h"
 #include "ComplexVolumes.h"
+#include "Fields.h"
+#include "Image.h"
+#include "ObjParser.h"
+#include "ProgressMeter.h"
+#include "RayMarcher.h"
+#include "SparseGrid.h"
+#include "Stamp.h"
+#include "Vector.h"
+#include "VolumeGeometry.h"
 
 
 using namespace lux;
 
 
-bool write( const std::string& filename, float* img_data, int Nx, int Ny, int Nc );
 
 int main(int argc, char *argv[])
 {
@@ -75,11 +75,11 @@ int main(int argc, char *argv[])
 				ScalarField ajax;
 				Mesh ajax_mesh;
 				makeObjVolume("models/ajax/smallajax.obj", ajax, ajax_mesh, 80);
-				urc = ajax_mesh->URC();
-				llc = ajax_mesh->LLC();
 				filename = "ajax";
 
 				modelscale = .015;
+				llc = ajax_mesh->LLC()*modelscale;
+				urc = ajax_mesh->URC()*modelscale;
 				ajax = scale(ajax, Vector(modelscale, modelscale, modelscale));
 				
 				//Ajax render settings
@@ -232,24 +232,8 @@ int main(int argc, char *argv[])
 		RenderFrame(&d, progress, image, RayMarchDSM);
 		//RenderFrame(&d, progress, image, RayMarchEmission);
 
-		write("images/" + framename + ".exr", image, d.Nx(), d.Ny(), d.Nc());
+		img::write("images/" + framename + ".exr", image, d.Nx(), d.Ny(), d.Nc());
 	}
 	
-}
-
-bool write( const std::string& filename, float* img_data, int Nx, int Ny, int Nc ) 
-{
-  std::unique_ptr<OpenImageIO_v2_1::ImageOutput> out = OpenImageIO_v2_1::ImageOutput::create(filename.c_str());
-  if( !out ){return false;}
-  OpenImageIO_v2_1::ImageSpec spec (Nx, Ny, Nc, OpenImageIO_v2_1::TypeDesc::FLOAT);
-  spec.attribute("user", "imgproc");
-  spec.attribute("writer", "imgproc:write" );
-  out->open (filename.c_str(), spec);
-
-  unsigned long scanlinesize = Nx * Nc * sizeof(img_data[0]);
-  out->write_image (OpenImageIO_v2_1::TypeDesc::FLOAT, (char *)img_data);
-  out->close();
-  return true;
-
 }
 

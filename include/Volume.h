@@ -240,14 +240,14 @@ class ScalarField : public ScalarFieldBase
     ScalarField operator-();
     ScalarField operator*( const ScalarField& e2 );
     ScalarField operator*( const float e2 );
-    ScalarField operator/( const ScalarField& e2 );
-    ScalarField operator^(  const ScalarField& e2 );
-    ScalarField operator&&( const ScalarField& e2 );
-    ScalarField operator||( const ScalarField& e2 );
-    VectorField operator*( const VectorField& e1 );
-    ColorField operator*( const ColorField& e1 );
+//    ScalarField operator/( const ScalarField& e2 );
+//    ScalarField operator^(  const ScalarField& e2 );
+//    ScalarField operator&&( const ScalarField& e2 );
+//    ScalarField operator||( const ScalarField& e2 );
+//    VectorField operator*( const VectorField& e1 );
+//    ColorField operator*( const ColorField& e1 );
 
-    MatrixField operator*( const MatrixField& e1 );
+//    MatrixField operator*( const MatrixField& e1 );
 
 };
 
@@ -284,14 +284,14 @@ class VectorField : public VectorFieldBase
 
 
     VectorField operator+( const VectorField& e2 );
-    VectorField operator-( const VectorField& e2 );
-    VectorField operator-( );
-    VectorField operator*( const ScalarField& e2 );
-    ScalarField operator*( const VectorField& e2 );
-    VectorField operator/( const ScalarField& e2 );
-    VectorField operator^( const VectorField& e2 );
-
-    VectorField operator*( const MatrixField& e2 );
+//    VectorField operator-( const VectorField& e2 );
+//    VectorField operator-( );
+//    VectorField operator*( const ScalarField& e2 );
+//    ScalarField operator*( const VectorField& e2 );
+//    VectorField operator/( const ScalarField& e2 );
+//    VectorField operator^( const VectorField& e2 );
+//
+//    VectorField operator*( const MatrixField& e2 );
 
 
 };
@@ -317,11 +317,11 @@ class ColorField : public ColorFieldBase
 
 
     ColorField operator+( const ColorField& e2 );
-    ColorField operator-( const ColorField& e2 );
-    ColorField operator-( );
-    ColorField operator*( const ColorField& e2 );
+//    ColorField operator-( const ColorField& e2 );
+//    ColorField operator-( );
+//    ColorField operator*( const ColorField& e2 );
     ColorField operator*( const ScalarField& e2 );
-    ColorField operator/( const ScalarField& e2 );
+//    ColorField operator/( const ScalarField& e2 );
 
 };
 
@@ -362,12 +362,12 @@ class MatrixField : public MatrixFieldBase
 
 
     MatrixField operator+( const MatrixField& e2 );
-    MatrixField operator-( const MatrixField& e2 );
-    MatrixField operator-();
-    MatrixField operator*( const ScalarField& e2 );
-    VectorField operator*( const VectorField& e2 );
-    MatrixField operator*( const MatrixField& e2 );
-    MatrixField operator/( const ScalarField& e2 );
+//    MatrixField operator-( const MatrixField& e2 );
+//    MatrixField operator-();
+//    MatrixField operator*( const ScalarField& e2 );
+//    VectorField operator*( const VectorField& e2 );
+//    MatrixField operator*( const MatrixField& e2 ); // what the fudge
+//    MatrixField operator/( const ScalarField& e2 );
 
 };
 

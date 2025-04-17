@@ -24,7 +24,9 @@ ScalarField ScalarField::operator-( const ScalarField& e2 ) { return add(*this,n
 ScalarField ScalarField::operator*( const ScalarField& e2 ) { return multiply(*this, e2); }
 ScalarField ScalarField::operator*( const float e2 ) { return multiply(*this, e2); }
 
+
 ColorField ColorField::operator+( const ColorField& e2 ) { return add(*this,e2); }
+ColorField ColorField::operator*( const ScalarField& e2 ) { return multiply(*this, e2); }
 
 VectorField VectorField::operator+( const VectorField& e2 ) { return add(*this,e2); }
 

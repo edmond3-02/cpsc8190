@@ -20,6 +20,7 @@ bool write( const std::string& filename, float* img_data, int Nx, int Ny, int Nc
 
   unsigned long scanlinesize = Nx * Nc * sizeof(img_data[0]);
   out->write_image (TypeDesc::FLOAT, img_data);
+  //out->write_image (TypeDesc::FLOAT, img_data + (Ny-1)*scanlinesize, AutoStride, -scanlinesize, AutoStride);
   out->close();
   return true;
 
