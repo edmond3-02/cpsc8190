@@ -7,3 +7,13 @@ movies/
 bin/
 lib/
 *.vim
+lib/
+swig/*.so
+swig/*.o
+swig/*.cxx
+swig/*.pyc
+swig/bishop.py*
+doc/html
+doc/latex
+python/*.pyc
+swig/__pycache__
