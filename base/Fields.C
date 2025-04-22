@@ -29,6 +29,7 @@ ColorField ColorField::operator+( const ColorField& e2 ) { return add(*this,e2);
 ColorField ColorField::operator*( const ScalarField& e2 ) { return multiply(*this, e2); }
 
 VectorField VectorField::operator+( const VectorField& e2 ) { return add(*this,e2); }
+VectorField VectorField::operator-( const VectorField& e2 ) { return subtract(*this,e2); }
 
 MatrixField MatrixField::operator+( const MatrixField& e2 ) { return MatrixField( new AddMatrixVolume(*this,e2) ); }
 
@@ -61,6 +62,7 @@ VectorField add( const VectorField&  v1, const VectorField& v2 ) { return Vector
 ColorField  add( const ColorField&  v1, const ColorField& v2 )   { return ColorField(new AddColor(v1,v2)); }
 MatrixField add( const MatrixField&  v1, const MatrixField& v2 ) { return MatrixField( new AddMatrixVolume( v1, v2 )); }
 
+VectorField subtract( const VectorField&  v1, const VectorField& v2 ) { return VectorField(new SubtractVectorVolume(v1, v2)); }
 
 
 ScalarField Sphere( const Vector& cen, const float rad ) { return ScalarField( new SphereVolume(cen, rad) ); }
@@ -96,10 +98,12 @@ ScalarField gridded(const ScalarGrid& g) { return ScalarField( new GriddedSGridV
 VectorField gridded( const VectorGrid& g ){ return VectorField( new GriddedSGridVectorVolume( g ) ) ; }
 
 ScalarField advect( const ScalarField& v, const VectorField& u, const float delt ) { return ScalarField( new AdvectVolume(v, u, delt)); }
+VectorField advect( const VectorField& v, const VectorField& u, const float delt ) { return VectorField( new AdvectVectorVolume(v, u, delt)); }
 
 ScalarField warp( const ScalarField& v, VectorField& map ) { return ScalarField( new WarpVolume(v, map)); }
 VectorField warp( const VectorField& v, VectorField& map ) { return VectorField( new WarpVectorVolume(v, map)); }
 
+VectorField identity() { return VectorField( new IdentityVectorVolume()); }
 
 ScalarField SFNoise( NoiseMachine n, const float d ) { return ScalarField( new NoiseVolume(n, d)); } 
 VectorField VFNoise( NoiseMachine n, const float d ) { return VectorField( new NoiseVectorVolume(n, d)); } 

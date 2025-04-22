@@ -18,3 +18,7 @@ NoiseMachine lux::terrain(Noise_t n)
 	return noise;
 }
 
+float lux::evaluate(const NoiseMachine& n, const Vector& X)
+{
+	return n->eval(X);
+}

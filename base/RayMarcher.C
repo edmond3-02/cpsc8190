@@ -45,10 +45,9 @@ void RenderFrame(const RenderData* d, ProgressMeter& pm, float* image)
 	
 	for(int j=0;j<d->Ny();j++)
 	{
-
 		pm.update();
 		double y = (double)j/double(d->Ny());
-//		#pragma omp parallel for
+		#pragma omp parallel for
 		for(int i=0;i<d->Nx();i++)
 		{
 			double x = (double)i/double(d->Nx());
@@ -61,12 +60,17 @@ void RenderFrame(const RenderData* d, ProgressMeter& pm, float* image)
 			float far = d->sfar;
 			for(int box=0; box<d->boundingBoxes.size(); box++)
 			{
-				if(d->boundingBoxes[box]->intersection(r, near, far))
+				float _near = near;
+				float _far = far;
+				if(d->boundingBoxes[box]->intersection(r, _near, _far))
 				{
 					hit = true;
+					near = std::min(near, _near);
+					far = std::max(far, _far);
 					break;
 				}
 			}
+
 			// if the ray misses the bounding boxes, skip to next pixel
 			if(!hit) continue;
 
@@ -77,7 +81,7 @@ void RenderFrame(const RenderData* d, ProgressMeter& pm, float* image)
 				RayMarchEmission(d, direction, L);
 			}
 			else
-				RayMarchDSM(d, direction, L, near, far);
+				BoundedRayMarchDSM(d, direction, L, near, far);
 
 			for(int c=0; c<d->Nc(); c++)
 			{
@@ -111,7 +115,7 @@ void RayMarchEmission(const RenderData* d, const Vector& direction, Color& L)
 	L[3] = 1;//-T; // set the alpha channel to the opacity
 }
 
-void RayMarchDSM(const RenderData* d, const Vector& direction, Color& L, 
+void BoundedRayMarchDSM(const RenderData* d, const Vector& direction, Color& L, 
 		 const float near, const float far)
 {
 	// Optimizations from "A Note on Computation of a Ray Bending Path", Section 4,
@@ -176,8 +180,8 @@ void RayMarchDSM(const RenderData* d, const Vector& direction, Color& L,
 			L += d->colorField->eval(X) * Clights * (1-dT) * T / d->kappa;
 			T *= dT;
 		}
-//		X += direction * ds;
-//		s += ds;
+		X += direction * ds;
+		s += ds;
 	}
 	L[3] = 1-T; // set the alpha channel to the opacity
 }

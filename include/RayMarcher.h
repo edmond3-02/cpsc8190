@@ -102,7 +102,7 @@ void RayMarchEmission(const RenderData* d, const Vector& direction, Color& L);
 
 void RayMarchDSM(const RenderData* d, const Vector& direction, Color& L);
 
-void RayMarchDSM(const RenderData* d, const Vector& direction, Color& L, const float near, const float far);
+void BoundedRayMarchDSM(const RenderData* d, const Vector& direction, Color& L, const float near, const float far);
 
  
 ScalarField RayMarchDSMAccumulation( 	const RenderData* d, 

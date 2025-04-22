@@ -36,13 +36,13 @@ void StampField( ScalarGrid& grid, ScalarField& field )
 
 void StampField( VectorGrid& grid, VectorField& field )
 {
-	//ProgressMeter prog((grid->nx()*grid->ny())*2, "Stamp Field" );
-	#pragma omp parallel for
+	ProgressMeter prog(grid->nx(), "Stamp Field" );
 	for(int i=0; i<grid->nx();i++)
 	{
+		prog.update();
+		#pragma omp parallel for
 		for(int j=0; j<grid->ny();j++)
 		{
-	//		prog.update();
 			for(int k=0; k<grid->nz();k++)
 			{
 				Vector pos = grid->evalP(i,j,k);

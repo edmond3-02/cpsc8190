@@ -86,7 +86,7 @@ ColorField  add( const ColorField&  v1, const ColorField& v2 );
 MatrixField add( const MatrixField&  v1, const MatrixField& v2 );
 
 //ScalarField subtract( const ScalarField&  v1, const ScalarField& v2 );
-//VectorField subtract( const VectorField&  v1, const VectorField& v2 );
+VectorField subtract( const VectorField&  v1, const VectorField& v2 );
 //ColorField  subtract( const ColorField&  v1, const ColorField& v2 );
 //MatrixField subtract( const MatrixField&  v1, const MatrixField& v2 );
 
@@ -141,7 +141,7 @@ VectorField gridded( const VectorGrid& g );
 
 
 ScalarField advect( const ScalarField& v, const VectorField& u, const float delt ); 
-//VectorField advect( const VectorField& v, const VectorField& u, const float delt ); 
+VectorField advect( const VectorField& v, const VectorField& u, const float delt ); 
 //ColorField  advect( const ColorField& v, const VectorField& u, const float delt ); 
 //MatrixField advect( const MatrixField& v, VectorField& u, const float delt ); 
 
@@ -152,7 +152,7 @@ VectorField warp( const VectorField& v, VectorField& map );
 
 //ScalarField dot( const VectorField& e1, const VectorField& e2 );
 //VectorField unitvector( const VectorField& e );
-//VectorField identity();
+VectorField identity();
 //ScalarField xIdentity();
 //ScalarField yIdentity();
 //ScalarField zIdentity();

@@ -67,3 +67,6 @@ terrain:
 
 perf:
 	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/perf_test.C $(INCLUDES) -L../build/lib lib/libstarter.a -lOpenImageIO -lOpenImageIO_Util -o bin/performance
+
+pyrobunny:
+	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/pyrobunny.C $(INCLUDES) -L../build/lib lib/libstarter.a -lOpenImageIO -lOpenImageIO_Util -o bin/pyrobunny

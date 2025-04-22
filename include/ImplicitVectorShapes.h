@@ -76,6 +76,63 @@ class AddVectorVolume : public Volume<Vector>
     VectorField elem1, elem2;
 };
 
+class SubtractVectorVolume : public Volume<Vector> 
+ {
+   public:
+  
+   //  SubtractVectorVolume( Volume<Vector> * v1, Volume<Vector> * v2 ) ;
+  
+     SubtractVectorVolume( const VectorField& v1, const VectorField& v2 ) ;
+  
+     ~SubtractVectorVolume(){}
+  
+  
+     const Vector eval( const Vector& P ) const;
+  
+     const Matrix grad( const Vector& P ) const;
+  
+  
+     virtual std::string typelabel() 
+     { 
+        std::string lbl = "Subtract";
+        lbl = lbl + "(";
+        lbl = lbl + elem1->typelabel();
+        lbl = lbl + ",";
+        lbl = lbl + elem2->typelabel();
+        lbl = lbl + ")";
+        return lbl;
+     }
+  
+   private:
+   
+     VectorField elem1, elem2;
+ };
+
+class IdentityVectorVolume : public Volume<Vector> 
+ {
+   public:
+  
+     IdentityVectorVolume();
+  
+     ~IdentityVectorVolume(){}
+  
+  
+     const Vector eval( const Vector& P ) const ;
+  
+     const Matrix grad( const Vector& P ) const;
+  
+  
+     virtual std::string typelabel() 
+     { 
+        std::string lbl = "Identity";
+        return lbl;
+     }
+  
+  
+   private:
+  
+     Matrix gradvalue;
+ };
 
 class GradientVectorVolume : public Volume<Vector> 
 {
@@ -156,7 +213,7 @@ class AdvectVectorVolume : public Volume<Vector>
    ~AdvectVectorVolume(){}
  
     const Vector eval( const Vector& P ) const ;
-//    const Matrix grad( const Vector& P ) const ;
+    const Matrix grad( const Vector& P ) const ;
  
  
     virtual std::string typelabel() 
@@ -231,7 +288,45 @@ class NoiseVectorVolume : public Volume<Vector>
     NoiseMachine noise;
     float dx;
 };
-
+/*
+class BFECCAdvectVectorVolume : public Volume<Vector> 
+{
+  public:
+ 
+    BFECCAdvectVectorVolume( Volume<Vector>* v, Volume<Vector>* u, const float dt, const int nb = 1 )  
+    {
+       if( nb == 0 )
+       {
+      elem = VectorField( new AdvectVectorVolume( v, u, dt )  );
+       }
+       else
+       {
+          Volume<Vector>* advected = new BFECCAdvectVectorVolume( v, u, dt, nb-1 );
+      Volume<Vector>* negu = new NegateVectorVolume( u );
+      Volume<Vector>* backadvected = new BFECCAdvectVectorVolume( advected, negu, dt, nb-1 );
+      Volume<Vector>* error = new MultiplyVectorVolume( new SubtractVectorVolume( v, backadvected ) , 0.5);
+      advected = new AddVectorVolume( advected, error );
+      elem = VectorField(advected);
+       }
+    }
+ 
+   ~BFECCAdvectVectorVolume(){}
+ 
+    const Vector eval( const Vector& P ) const 
+    {
+       return elem->eval(P);
+    }
+ 
+    const Matrix grad( const Vector& P ) const
+    {
+       return elem->grad(P); 
+    }
+ 
+  private:
+ 
+    VectorField elem;
+};
+*/
 class GriddedSGridVectorVolume : public Volume<Vector> 
 {
   public:
@@ -252,7 +347,7 @@ class GriddedSGridVectorVolume : public Volume<Vector>
  
   private:
  
-    VectorGrid elem;
+    VectorGrid vegrid;
     float dx, dy, dz;
 };
 

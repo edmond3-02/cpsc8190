@@ -138,6 +138,12 @@ const float AdvectVolume::eval( const Vector& P ) const
 	return elem->eval(X);
 }
 
+const Vector AdvectVolume::grad(  const Vector& P ) const
+{
+	Vector X = P  - (velocity->eval(P) ) * dt;
+	Matrix M = unitMatrix() - ( velocity->grad(P) )*dt;
+	return M * (elem->grad(X));
+}
 
 CsgBoxVolume::CsgBoxVolume( const Vector& cen, const float rad, float pwr) :
        center       (cen),

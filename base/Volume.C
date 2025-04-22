@@ -176,9 +176,9 @@ const Vector lux::FDGradient( const float& x, const float& y, const float& z )
       float xx = x;
       float yy = y;
       float zz = z;
-      if( isnan(x) ){ cout << "Gradient NAN x\n"; xx = 0.0; }
-      if( isnan(y) ){ cout << "Gradient NAN y\n"; yy = 0.0; }
-      if( isnan(z) ){ cout << "Gradient NAN z\n"; zz = 0.0; }
+      if( isnan(x) ){ /*cout << "Gradient NAN x\n";*/ xx = 0.0; }
+      if( isnan(y) ){ /*cout << "Gradient NAN y\n";*/ yy = 0.0; }
+      if( isnan(z) ){ /*cout << "Gradient NAN z\n";*/ zz = 0.0; }
       return Vector(xx,yy,zz); 
 }
 

@@ -24,7 +24,8 @@ class NoiseMachine : public NoiseMachineBase
  
 NoiseMachine perlin( Noise_t n );
 NoiseMachine terrain( Noise_t n );
- 
+
+float evaluate(const NoiseMachine& n, const Vector& X); 
  
  
  

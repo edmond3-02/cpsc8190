@@ -9,7 +9,7 @@
 #include <cmath>
 
 
-void makeObjVolume(std::string filename, ScalarField& density, Mesh& mesh, int gridRes)
+void makeObjVolume(std::string filename, ScalarField& density, Mesh& mesh, int gridRes, int bandwidth)
 {
 	ScalarGrid grid = ScalarGrid(new SGrid<float>);
 
@@ -20,18 +20,16 @@ void makeObjVolume(std::string filename, ScalarField& density, Mesh& mesh, int g
 	mesh = createEmptyMesh();
 	parser.load(filename, mesh);
 	Vector gridDims = mesh->URC() - mesh->LLC();
-	std::cout << "Dims: " << gridDims.__str__() << std::endl;
 	grid->init(gridRes, gridRes, gridRes, gridDims.X(), gridDims.Y(), gridDims.Z(), mesh->LLC() );
 	
 	// Ray march the level set of the mesh
-	RayMarchLevelSet(mesh, grid, 2);
+	RayMarchLevelSet(mesh, grid, bandwidth);
 
 	// Make grid into volume
 	density = volumize(grid);
 	
 	float scale_amt = 1;
 	density = scale(density, Vector(scale_amt,-scale_amt,scale_amt));
-	density = mask(density);
 
 }
 

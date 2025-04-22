@@ -218,7 +218,7 @@ class AdvectVolume : public Volume<float>
    ~AdvectVolume(){}
  
     const float eval( const Vector& P ) const; 
-    //const Vector grad(  const Vector& P ) const;
+    const Vector grad(  const Vector& P ) const;
  
     virtual std::string typelabel() 
     { 

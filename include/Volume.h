@@ -284,7 +284,7 @@ class VectorField : public VectorFieldBase
 
 
     VectorField operator+( const VectorField& e2 );
-//    VectorField operator-( const VectorField& e2 );
+    VectorField operator-( const VectorField& e2 );
 //    VectorField operator-( );
 //    VectorField operator*( const ScalarField& e2 );
 //    ScalarField operator*( const VectorField& e2 );
