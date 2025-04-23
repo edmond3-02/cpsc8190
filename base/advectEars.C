@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 
 	int start_frame = 0;
 	int end_frame	= 0;
-	std::string filename = "pyrobunny";
+	std::string filename = "bunnyears";
 	int opt;
 	while( (opt = getopt(argc, argv, "s:e:")) != -1)
 	{
@@ -46,11 +46,11 @@ int main(int argc, char *argv[])
 	}
 
 	RenderData render_data;
-	render_data.kappa = 10;
+	render_data.kappa = 20;
 	render_data.resolution[0] = 1920;
-	//render_data.resolution[0] = 960;
+	render_data.resolution[0] = 960;
 	render_data.resolution[1] = 1080;
-	//render_data.resolution[1] = 540;
+	render_data.resolution[1] = 540;
 	//working ish
 	render_data.ds = 0.002;
 	render_data.ds = 0.001;
@@ -96,21 +96,28 @@ int main(int argc, char *argv[])
 	// POSITION BUNNY
 	bunny = scale(bunny, Vector(1,-1,1));
 	bunny = translate(bunny, Vector(0,.1,0));
-	bunny = Union(bunny, Sphere(Vector(), .03));
-	
-	// TEST SPHERE
-	//bunny = Sphere(Vector(), .07);
 
-	// pyroclastic displacement noise
-	Noise_t perlin_noise;
-	perlin_noise.octaves = 2;
-	perlin_noise.frequency = 80;
-	NoiseMachine noise = perlin(perlin_noise);
-	
+
+	ScalarGrid constant_grid = ScalarGrid(new SGrid<float>);
+	int res = 50;
+	constant_grid->init(res, res, res, width*1.5, width*1.2, width*1.2, -Vector(width+.07, width-.03, width-.01)/2);
+	// Body bounding box
+	Vector body_llc = Vector(-.09, -.03, -.04);
+	Vector body_urc = Vector(.065, .07, .06);
+	Vector body_dim = body_urc - body_llc;
+	constant_grid->init(res, res, res, body_len.X(), body_len.Y(), body_len.Z(), body_llc);
+	//constant_grid->init(res, res, res, .1, .08, .12, -Vector(.1, .08, 0.06));
+	constant_grid->setDefVal(0.0);
+	ScalarField con = constant(.05);
+	StampField(constant_grid, con);
+	con = gridded(constant_grid);
+	render_data.densityField = clamp(Union(bunny*40,con), 0, 1);
+	render_data.colorField = constant(Color(1,0,0,1))+ constant(Color(0,1,1,0)) * mask(con);
+
 	// advection noise field
 	Noise_t noise_field_parms;
 	noise_field_parms.octaves = 3;
-	noise_field_parms.frequency = 70;
+	noise_field_parms.frequency = 100;
 	noise_field_parms.amplitude = .13;
 	NoiseMachine noise_field_machine = perlin(noise_field_parms);
 	VectorField noise_field = VFNoise(noise_field_machine);
@@ -120,35 +127,42 @@ int main(int argc, char *argv[])
 	int noiseRes = 800;
 	float noise_width = 0.15;
 	noise_grid->init(noiseRes, noiseRes, noiseRes, noise_width*2, noise_width*2, noise_width*2, -Vector(noise_width, noise_width, noise_width));
-	StampField(noise_grid, noise_field);
+	//StampField(noise_grid, noise_field);
 	noise_field = gridded(noise_grid);
+		
+	VectorField map = identity();
+	for(int adv_i=60; adv_i<5; adv_i++)
+	{
+		map = advect(map, noise_field, .004);
+	}
+	bunny = warp(bunny, map);
+
+	// render info
+	//render_data.densityField = bunny;
+	//render_data.densityField = clamp(render_data.densityField*60, 0, 1)*60;
+	//render_data.colorField = constant(Color(1,1,1,1));
+	render_data.lightPosition = {Vector(0, -2, 0)};
+	render_data.lightColor    = {Color(1,1,1,1)};
+
+
+	int dsmRes = 100;	
+	if(render_data.lightPosition.size() > 0)
+	{
+		render_data.dsmField.resize(0);
+		for (int j=0; j<render_data.lightPosition.size();j++)
+		{
+			ScalarGrid dsm = ScalarGrid(new SGrid<float>);
+			dsm->init(dsmRes, dsmRes, dsmRes, width*2, width*2, width*2, -Vector(width, width, width));
+			dsm->setDefVal(0.0);
+		
+			render_data.dsmField.push_back(RayMarchDSMAccumulation(&render_data, render_data.densityField, render_data.lightPosition[j], render_data.ds, dsm));
+		}
+	} 
 
 	std::string prefix = filename;
 	for(int i=start_frame; i<=end_frame; i++)
 	{
-		float pct = std::min(float(i)/59.0, 1.0);
-
-		render_data.densityField = bunny;
-		render_data.densityField = Pyroclast(render_data.densityField, noise, .006 * pct, 2, 1);
-		//render_data.densityField = Pyroclast(render_data.densityField, noise, .005, 15, 1.0/3.0);
-
-		VectorField map = identity();
-		for(int adv_i=60; adv_i<i; adv_i++)
-		{
-			map = advect(map, noise_field, .004);
-		}
-		render_data.densityField = warp(render_data.densityField, map);
-
-		// pre render processing
-		render_data.densityField = clamp(render_data.densityField*60, 0, 1)*60;
-		render_data.colorField = constant(Color(1,1,1,1));
-//		render_data.colorField = render_data.colorField + constant(-Color(0,1,1,0)) * mask(bunny);
-	
-		render_data.lightPosition = {Vector(0, -2, 0)};
-		render_data.lightColor    = {Color(1,1,1,1)};
-		
 		// Render
-		int dsmRes = 150;	
 //		ScalarGrid constant_grid = ScalarGrid(new SGrid<float>);
 //		constant_grid->init(dsmRes, dsmRes, dsmRes, width*2, width*2, width*2, -Vector(width, width, width));
 //		constant_grid->setDefVal(0.0);
@@ -156,21 +170,9 @@ int main(int argc, char *argv[])
 //		StampField(constant_grid, con);
 //		render_data.densityField = clamp(Union(bunny*40,gridded(constant_grid)), 0, 1);
 		
-		if(render_data.lightPosition.size() > 0)
-		{
-			render_data.dsmField.resize(0);
-			for (int j=0; j<render_data.lightPosition.size();j++)
-			{
-				ScalarGrid dsm = ScalarGrid(new SGrid<float>);
-				dsm->init(dsmRes, dsmRes, dsmRes, width*2, width*2, width*2, -Vector(width, width, width));
-				dsm->setDefVal(0.0);
-			
-				render_data.dsmField.push_back(RayMarchDSMAccumulation(&render_data, render_data.densityField, render_data.lightPosition[j], render_data.ds, dsm));
-			}
-		} 
 
 		// Camera settings
-		float rot = 0.0;
+		float rot = i/4.0;
 		Vector eye(cam_dist*sin((rot)*2*3.14159265359), 0, cam_dist*cos((rot)*2*3.14159265359)); 
 		Vector up(0.0, 1.0, 0.0);
 		Vector dir = -eye;

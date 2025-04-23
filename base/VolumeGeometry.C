@@ -17,7 +17,9 @@ void RayMarchLevelSet( const Mesh& geom, ScalarGrid& lsgrid, const int bandwidth
 {
 	ProgressMeter  calcDistProg(geom->nbFaces(), "Calculate distances");
 
-	lsgrid->setDefVal(100000);
+	int bigNum = 100000;
+
+	lsgrid->setDefVal(bigNum);
 	// ITERATE TRIS
 	for(int t=0; t<geom->nbFaces(); t++)
 	{
@@ -88,8 +90,6 @@ void RayMarchLevelSet( const Mesh& geom, ScalarGrid& lsgrid, const int bandwidth
 
 			vector<float> intersections = FindAllIntersections(geom, lsgrid->evalP(x,y,0), Vector(0,0,1).unitvector());
 			int intercount = 0;
-			//std::cout << intersections.size() << " ";
-
 			for(int z=0; z<lsgrid->nz(); z++)
 			{
 				float d = z * std::abs(lsgrid->dz());
@@ -98,29 +98,29 @@ void RayMarchLevelSet( const Mesh& geom, ScalarGrid& lsgrid, const int bandwidth
 					intercount++;
 
 				float val = lsgrid->get(x, y, z);
-   				// removing the iff statement fixes it. WHY? and how to avoid?
-				// WHY : because grid points within allocated blocks are initialized with positive values, and arent picked up by the if
-				// HOW TO AVOID : use lsgrid->goodBlock?
-				//if(val != lsgrid->getDefVal() || (intercount%2) == 1)   
+				// pick up allocated points
 				if(lsgrid->goodBlock(x,y,z) || (intercount%2) == 1)   
 				lsgrid->set(x, y, z, val * std::pow(-1, 1+intercount) );
 
 			}
 		}
-		//std::cout << std::endl;
-
 	}
 
-	lsgrid->setDefVal(-100000);
+	lsgrid->setDefVal(-bigNum);
 
 /*
-	for(int y=0; y<lsgrid->ny(); y++)
+	for(int y=lsgrid->ny()-1; y >=0; y--)
 	{
 		for(int x=0; x<lsgrid->nx(); x++)
 		{
-			float val = lsgrid->get(x,y,20);
-			if(std::abs(val) != 100000) std::cout <<std::fixed<<std::setprecision(3) << val << " ";
-			else std::cout << "++++ ";
+			float val = lsgrid->get(x,y,lsgrid->nz()/2);
+			if(std::abs(val) != bigNum) 
+			{
+				if(val > 0) std::cout <<std::fixed<<std::setprecision(3) << val << " ";
+				else std::cout <<std::fixed<<std::setprecision(2) << val << " ";
+			}
+			else if(!signbit(val)) std::cout << "+++++ ";
+			else std::cout << "----- ";
 		}
 		std::cout <<std::endl;
 	}
