@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 	ScalarField density;
 	Mesh mesh;
 	int gridRes = 200;
-	int bandwidth = 10;
+	int bandwidth = 20;
 	ScalarGrid grid = ScalarGrid(new SGrid<float>);
 
 	grid->setDefVal(0.0);
@@ -82,8 +82,8 @@ int main(int argc, char *argv[])
 	ObjParser parser;
 	mesh = createEmptyMesh();
 	parser.load("models/bunny/bunny_fixed.obj", mesh);
-	Vector murc = mesh->URC() + Vector(1,1,1)*.05;
-	Vector mllc = mesh->LLC() - Vector(1,1,1)*.05;
+	Vector murc = mesh->URC() + Vector(1,1,1)*.09;
+	Vector mllc = mesh->LLC() - Vector(1,1,1)*.09;
 	murc = mesh->URC();
 	mllc = mesh->LLC();
 	Vector gridDims =  murc - mllc;
@@ -104,8 +104,8 @@ int main(int argc, char *argv[])
 
 	Vector body_llc = Vector(-.09, -.03, -.04);
 	Vector body_urc = Vector(.065, .07, .06);
-	Vector head_llc = Vector(-.1, -.1, -.06);
-	Vector head_urc = Vector(.0, .0, .06);
+	Vector head_llc = Vector(-.1, -.15, -.1);
+	Vector head_urc = Vector(.0, .04, .06);
 
 	if(vis_bounds)
 	{
@@ -138,23 +138,24 @@ int main(int argc, char *argv[])
 		Noise_t noise_field_parms;
 		noise_field_parms.octaves = 3;
 		noise_field_parms.frequency = 80;
-		noise_field_parms.amplitude = .15;
+		noise_field_parms.amplitude = .13;
 		noise_field_parms.roughness = .8;
 		NoiseMachine noise_field_machine = perlin(noise_field_parms);
 		VectorField noise_field = VFNoise(noise_field_machine);
 	
 		// TESTING ONLY
 		VectorGrid noise_grid = VectorGrid(new SGrid<Vector>);
-		int noiseRes = 800;
+		int noiseRes = 400;
 		float noise_width = 0.15;
 		Vector ear_urc = Vector(.0, -.03, .06);
 		Vector noiseDim = ear_urc - head_llc;
 		noise_grid->init(noiseRes, noiseRes, noiseRes, noise_width*2, noise_width*2, noise_width*2, -Vector(noise_width, noise_width, noise_width));
 		noise_grid->init(noiseRes, noiseRes, noiseRes, noiseDim.X(), noiseDim.Y(), noiseDim.Z(), head_llc);
-		
-		noise_field = noise_field - identity();
-		StampField(noise_grid, noise_field);
-		noise_field = gridded(noise_grid) + identity();
+	
+	// TESTING	
+	//	noise_field = noise_field - identity();
+	//	StampField(noise_grid, noise_field);
+	//	noise_field = gridded(noise_grid) + identity();
 			
 		VectorField map = identity();
 		map = advect(map, noise_field, .08);

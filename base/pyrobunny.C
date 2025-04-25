@@ -120,8 +120,8 @@ int main(int argc, char *argv[])
 	int noiseRes = 800;
 	float noise_width = 0.15;
 	noise_grid->init(noiseRes, noiseRes, noiseRes, noise_width*2, noise_width*2, noise_width*2, -Vector(noise_width, noise_width, noise_width));
-	StampField(noise_grid, noise_field);
-	noise_field = gridded(noise_grid);
+//	StampField(noise_grid, noise_field);
+//	noise_field = gridded(noise_grid);
 
 	std::string prefix = filename;
 	for(int i=start_frame; i<=end_frame; i++)
