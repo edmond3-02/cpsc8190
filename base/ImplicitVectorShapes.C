@@ -18,6 +18,25 @@ const Matrix ConstantVectorVolume::grad( const Vector& P ) const
 	return gradvalue;
 }
 
+// NEGATE
+NegateVectorVolume::NegateVectorVolume( Volume<Vector> * v ):
+	elem(v)
+      {}
+
+NegateVectorVolume::NegateVectorVolume( const VectorField& v ):
+	elem(v)
+      {}
+
+const Vector NegateVectorVolume::eval( const Vector& P ) const
+{
+	return -elem->eval(P);
+}
+
+const Matrix NegateVectorVolume::grad( const Vector& P ) const
+{
+	return -elem->grad(P);
+}
+
 // ADD
 AddVectorVolume::AddVectorVolume( const VectorField& v1, const VectorField& v2 ) :
       elem1(v1),
@@ -34,8 +53,55 @@ const Matrix AddVectorVolume::grad( const Vector& P ) const
 	return  elem1->grad(P) + elem2->grad(P);
 }
 
+SubtractVectorVolume::SubtractVectorVolume( const VectorField& v1, const VectorField& v2 ) :
+      elem1(v1),
+      elem2(v2)
+    {}
+
+const Vector SubtractVectorVolume::eval( const Vector& P ) const
+{
+	return  elem1->eval(P) - elem2->eval(P);
+}
+
+const Matrix SubtractVectorVolume::grad( const Vector& P ) const
+{
+	return  elem1->grad(P) - elem2->grad(P);
+}
 
 
+MultiplyVectorVolume::MultiplyVectorVolume( Volume<Vector> * v, const float a ):
+	elem(v),
+	constant(a)
+      {}
+  
+MultiplyVectorVolume::MultiplyVectorVolume( Volume<Vector> * v, Volume<float>* u ):
+	elem(v),
+	factor(u)
+      {}
+
+MultiplyVectorVolume::MultiplyVectorVolume( const VectorField& v, const float a ):
+	elem(v),
+	constant(a)
+      {}
+  
+MultiplyVectorVolume::MultiplyVectorVolume( const VectorField& v, const ScalarField& u ):
+	elem(v),
+	factor(u)
+      {}
+
+const Vector MultiplyVectorVolume::eval( const Vector& P ) const
+{
+	if(factor != nullptr) return elem->eval(P) * factor->eval(P);
+	else return elem->eval(P) * constant;
+}
+
+IdentityVectorVolume::IdentityVectorVolume() :
+	gradvalue(Matrix(1,0,0, 0,1,0, 0,0,1))
+      {}
+
+const Vector IdentityVectorVolume::eval( const Vector& P ) const { return P; }
+
+const Matrix IdentityVectorVolume::grad( const Vector& P ) const { return gradvalue; }
 
 // GRADIENT
 GradientVectorVolume::GradientVectorVolume( Volume<float>* v, const float dx ) :
@@ -106,6 +172,13 @@ const Vector AdvectVectorVolume::eval( const Vector& P ) const
 	return elem->eval(X);
 }
 
+const Matrix AdvectVectorVolume::grad( const Vector& P ) const 
+{
+	Vector X = P - (velocity->eval(P) ) * dt;
+	Matrix M = unitMatrix() - ( velocity->grad(P) )*dt;
+	return M * (elem->grad(X));
+}
+
 // WARP
 WarpVectorVolume::WarpVectorVolume( Volume<Vector>* v, Volume<Vector>* u ) :
 	elem(v),
@@ -115,8 +188,7 @@ WarpVectorVolume::WarpVectorVolume( Volume<Vector>* v, Volume<Vector>* u ) :
 WarpVectorVolume::WarpVectorVolume( const VectorField& v, const VectorField& u ):
 	elem(v),
 	warp(u)
-      {}
-
+      {} 
 const Vector WarpVectorVolume::eval( const Vector& P ) const
 {
 	Vector X = warp->eval(P);
@@ -136,16 +208,19 @@ NoiseVectorVolume::NoiseVectorVolume( NoiseMachine n, const float d ) :
 
 const Vector NoiseVectorVolume::eval( const Vector& P ) const
 {
-	return Vector(noise->eval(P), noise->eval(Vector(P.Y(), P.Z(), P.X())), noise->eval(Vector(P.Y(), P.Z(), P.X())) );
+	return Vector(noise->eval(P), noise->eval(P + Vector(dx,0,0)), noise->eval(P - Vector(dx,0,0)) );
 }
 
 // GRID
 GriddedSGridVectorVolume::GriddedSGridVectorVolume( const VectorGrid& g ):
-	elem(g)
+	vegrid(g),
+	dx(vegrid->dx()),
+	dy(vegrid->dy()),
+	dz(vegrid->dz())
       {}
 
 const Vector GriddedSGridVectorVolume::eval( const Vector& P ) const
 {
-	return elem->eval(P);
+	return vegrid->eval(P);
 }
 

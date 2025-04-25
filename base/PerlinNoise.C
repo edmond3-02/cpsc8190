@@ -4,8 +4,7 @@
 #include "PerlinNoise.h"
 #include "Vector.h"
 
-namespace lux
-{
+using namespace lux;
 
 void PerlinNoise::init()
 {
@@ -256,5 +255,4 @@ void PerlinNoiseGustavson::init()
 
 }
 
-}
 

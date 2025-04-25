@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 
 	int start_frame = 0;
 	int end_frame   = 0;
-	bool renderdsm  = false;
+	bool renderdsm = false;
 	std::string filename = "noise_sphere";
 	int opt;
 	while( (opt = getopt(argc, argv, "ds:e:")) != -1)
@@ -53,15 +53,13 @@ int main(int argc, char *argv[])
 	float box_size = .5;
 	Vector urc = Vector(box_size,box_size,box_size);
 	Vector llc = Vector(-box_size,-box_size,-box_size);
-	float modelscale = 1.0;
 	float cam_dist = 1;
-	Mesh mesh;
 	RenderData d;
 	d.kappa = 10;
 	d.resolution[0] = 960;
 	d.resolution[1] = 540;
 	cam_dist = 2;
-	d.snear = 1.4;
+	d.snear = 0;
 	d.sfar = 2.6;
 	d.ds = 0.01;
 	
@@ -81,7 +79,8 @@ int main(int argc, char *argv[])
 
 	int dsmRes = 100;	
 	Vector gridDims = (urc - llc);
-		
+	AABB bound(llc, urc);
+	d.boundingBoxes.push_back(bound);	
 
 	std::string prefix = filename;
 	for(int i=start_frame; i<=end_frame; i++)
@@ -123,25 +122,21 @@ int main(int argc, char *argv[])
 		d.densityField = d.densityField * 40;
 
 		// Render
-		if(renderdsm)
+		d.dsmField.resize(0);
+		for (int j=0; j<d.lightPosition.size();j++)
 		{
-			d.dsmField.resize(0);
-			for (int j=0; j<d.lightPosition.size();j++)
-			{
-				ScalarGrid dsm = ScalarGrid(new SGrid<float>);
-				dsm->init(dsmRes, dsmRes, dsmRes, gridDims.X(), gridDims.Y(), gridDims.Z(), llc);
-				dsm->setDefVal(0.0);
-			
-				d.dsmField.push_back(RayMarchDSMAccumulation(&d, d.densityField, d.lightPosition[j], d.ds, dsm));
-			}
-		} 
+			ScalarGrid dsm = ScalarGrid(new SGrid<float>);
+			dsm->init(dsmRes, dsmRes, dsmRes, gridDims.X(), gridDims.Y(), gridDims.Z(), llc);
+			dsm->setDefVal(0.0);
 		
+			d.dsmField.push_back(RayMarchDSMAccumulation(&d, d.densityField, d.lightPosition[j], d.ds, dsm));
+		}
+	
+		std::cout << "dsms" << d.dsmField.size() << std::endl;
 		ProgressMeter progress(d.Ny()*d.Nx(), framename);
 		
-		if(renderdsm)
-		  RenderFrame(&d, progress, image, RayMarchDSM);
-		else
-		  RenderFrame(&d, progress, image, RayMarchEmission);
+		//RenderFrame(&d, progress, image);
+		RenderFrame(&d, progress, image, RayMarchDSM);
 
 		// Write to file
 		std::string name = "images/" + framename + ".exr";

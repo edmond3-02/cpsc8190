@@ -8,7 +8,7 @@
 #include "Color.h"
 #include "Volume.h"
 #include "VolumeGrid.h"
-//#include "AARectangle.h"
+#include "AARectangle.h"
 #include "SparseGrid.h"
 //#include "PhaseFunction.h"
 //#include "IntervalTree.h"
@@ -25,6 +25,8 @@ using namespace std;
  
  
 class VShader;
+
+
  
 class RenderData
 {
@@ -37,6 +39,9 @@ class RenderData
       sfar		 (5),
       ds                 (0.01),
       maxPathlength      (100000000.0),
+      maxSteps		 (10000),
+      Fmax		 (0.1),
+      Fmin		 (0.0001),
       Tmin		 (0.01),
       kappa		 (2.0),
       resolution	 {1920, 1080},
@@ -60,10 +65,16 @@ class RenderData
    vector<Vector> startDirection;
    Color scatterCoefficient;
 
+   vector<AABB> boundingBoxes;
+
    float snear;
    float sfar;
    float ds;
    float maxPathlength;
+   int   maxSteps;
+   float Fmax;
+   float Fmin;
+
    float Tmin;
    float kappa;
    
@@ -85,9 +96,14 @@ void SetColorField(  RenderData* d, const ColorField& field );
 
 void RenderFrame(const RenderData* d, ProgressMeter& pm, float* image, std::function<void(const RenderData*, const Vector&, Color&)> Render );
 
+void RenderFrame(const RenderData* d, ProgressMeter& pm, float* image);
+
 void RayMarchEmission(const RenderData* d, const Vector& direction, Color& L);
 
 void RayMarchDSM(const RenderData* d, const Vector& direction, Color& L);
+
+void BoundedRayMarchDSM(const RenderData* d, const Vector& direction, Color& L, const float near, const float far);
+
  
 ScalarField RayMarchDSMAccumulation( 	const RenderData* d, 
 					const ScalarField& densityField, 

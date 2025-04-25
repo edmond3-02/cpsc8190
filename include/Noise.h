@@ -147,12 +147,12 @@ class Noise
  
 typedef Noise_t Anchor;
 typedef std::vector<Anchor> AnchorChain;
-void setAnchor( AnchorChain& a, int i, const Anchor& c );
-Anchor getAnchor( AnchorChain& a, int i );
+//void setAnchor( AnchorChain& a, int i, const Anchor& c );
+//Anchor getAnchor( AnchorChain& a, int i );
  
  
-const Anchor evaluateAnchorChain( const AnchorChain& alist, const double x );
-const Anchor interpolateAnchors( const Anchor& a1, const Anchor& a2, const double x );
+//const Anchor evaluateAnchorChain( const AnchorChain& alist, const double x );
+//const Anchor interpolateAnchors( const Anchor& a1, const Anchor& a2, const double x );
  
  
 template< typename BaseNoise>

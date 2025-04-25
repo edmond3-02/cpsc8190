@@ -4,7 +4,7 @@
 
 servers=("ada3.computing.clemson.edu" "ada4.computing.clemson.edu" "ada5.computing.clemson.edu" "ada6.computing.clemson.edu" "ada7.computing.clemson.edu" "ada8.computing.clemson.edu" "ada9.computing.clemson.edu" "ada10.computing.clemson.edu" "ada11.computing.clemson.edu" )
 numsrvrs=${#servers[@]}
-commd="cd Documents/cpsc8190/code; bin/$1"
+commd="cd Documents/cpsc8190/starter; bin/$1"
 st=$2
 en=$3
 itr=0
@@ -26,15 +26,10 @@ ctr_c()
 
 trap ctr_c SIGINT
 
-for server in "${servers[@]}"; do
-	s=$((st + itr*inc))
-	e=$((st + itr*inc + inc - 1))
-	e=$(( e > en ? en : e))
-	# echo "s $s e $e"
-	cmd=" $commd -s $s -e $e >| bin/null"
-	echo $server $s $e
-	itr=$((itr + 1))
-	ssh -tt "$server" "$cmd" &
+for frame in $(seq "$st" "$en"); do
+	cmd="$commd -f $frame >| bin/null"
+	# echo $cmd
+	echo ssh -tt "$server" "$cmd" &
 
 done
 

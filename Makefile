@@ -13,10 +13,13 @@ OFILES = base/Matrix.o \
 	 base/SparseGrid.o \
 	 base/RayMarcher.o \
 	 base/ObjParser.o \
-	 base/VolumeGeometry.o \ base/ComplexVolumes.o \
+	 base/VolumeGeometry.o \
+	 base/ComplexVolumes.o \
 	 base/PerlinNoise.o \
 	 base/NoiseMachine.o \
-	 base/Image.o
+	 base/Image.o \
+	 base/Ray.o \
+	 base/AARectangle.o
 
 AFILES = $(OFILES)
 
@@ -40,7 +43,7 @@ all: $(AFILES)
 	$(CXX) -c $(INCLUDES) $< -o $@ 
 
 clean:
-	rm -rf *.o bin/* base/*.o core ./lib/libstarter.a  *~ swig/*~ swig/*.so swig/*.o swig/*.cxx swig/*.pyc swig/bishop.py* doc/html doc/latex python/*.pyc 
+	rm -rf *.o bin/* base/*.o core ./lib/libstarter.a  *~ swig/*~ swig/*.so swig/*.o swig/*.cxx swig/*.pyc swig/bishop.py* doc/html doc/latex python/*.pyc swig/__pycache__
 
 genswig:	swig/bishop.i	$(OFILES)
 	$(SWIGEXEC) -c++ -python -shadow -I./include/ swig/bishop.i
@@ -61,3 +64,12 @@ renderer:
 
 terrain:
 	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/terrain.C $(INCLUDES) -L../build/lib lib/libstarter.a -lOpenImageIO -lOpenImageIO_Util -o bin/terrain
+
+perf:
+	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/perf_test.C $(INCLUDES) -L../build/lib lib/libstarter.a -lOpenImageIO -lOpenImageIO_Util -o bin/performance
+
+pyrobunny:
+	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/pyrobunny.C $(INCLUDES) -L../build/lib lib/libstarter.a -lOpenImageIO -lOpenImageIO_Util -o bin/pyrobunny
+
+ears:
+	g++ -g -O2 -fPIC -fopenmp -std=c++14 base/advectEars.C $(INCLUDES) -L../build/lib lib/libstarter.a -lOpenImageIO -lOpenImageIO_Util -o bin/advectEars

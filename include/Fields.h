@@ -56,9 +56,9 @@ ScalarField negate( const ScalarField& v );
 ScalarField abs( const ScalarField& v ); 
 //ScalarField abs( const VectorField& v ); 
 
-//ScalarField which( const ScalarField& v1, const ScalarField& v2, const ScalarField& swtch );
+ScalarField which( const ScalarField& v1, const ScalarField& v2, const ScalarField& swtch );
 //VectorField which( const VectorField& v1, const VectorField& v2, const ScalarField& swtch );
-//ColorField  which( const ColorField& v1, const ColorField& v2, const ScalarField& swtch );
+ColorField  which( const ColorField& v1, const ColorField& v2, const ScalarField& swtch );
 //MatrixField which( const MatrixField& v1, const MatrixField& v2, const ScalarField& swtch );
 
 ScalarField multiply( const ScalarField& v, const float a ); 
@@ -86,7 +86,7 @@ ColorField  add( const ColorField&  v1, const ColorField& v2 );
 MatrixField add( const MatrixField&  v1, const MatrixField& v2 );
 
 //ScalarField subtract( const ScalarField&  v1, const ScalarField& v2 );
-//VectorField subtract( const VectorField&  v1, const VectorField& v2 );
+VectorField subtract( const VectorField&  v1, const VectorField& v2 );
 //ColorField  subtract( const ColorField&  v1, const ColorField& v2 );
 //MatrixField subtract( const MatrixField&  v1, const MatrixField& v2 );
 
@@ -108,7 +108,7 @@ ScalarField pow( const ScalarField& v, float gam );
 ScalarField pow( const ScalarField& v, const ScalarField& gam );
 //ColorField  pow( const ColorField& v, float gam );
 //ColorField  pow( const ColorField& v, const ScalarField& gam );
-ScalarField BlinnBlend( const ScalarField& v1, const ScalarField& v2, const float _alpha = 1.0 );
+ScalarField BlinnBlend( const ScalarField& v1, const ScalarField& v2, const float a1 = 1.0, const float a2 = 1.0 );
 ScalarField Union( const ScalarField& v1, const ScalarField& v2 );
 ScalarField intersection( const ScalarField& v1, const ScalarField& v2 );
 ScalarField cutout( const ScalarField& v1, const ScalarField& v2 );
@@ -141,9 +141,11 @@ VectorField gridded( const VectorGrid& g );
 
 
 ScalarField advect( const ScalarField& v, const VectorField& u, const float delt ); 
-//VectorField advect( const VectorField& v, const VectorField& u, const float delt ); 
+VectorField advect( const VectorField& v, const VectorField& u, const float delt ); 
 //ColorField  advect( const ColorField& v, const VectorField& u, const float delt ); 
 //MatrixField advect( const MatrixField& v, VectorField& u, const float delt ); 
+
+VectorField advectBFECC( const VectorField& v, const VectorField& u, const float delt, int nb=1 ); 
 
 ScalarField warp( const ScalarField& v, VectorField& map );
 VectorField warp( const VectorField& v, VectorField& map );
@@ -152,7 +154,7 @@ VectorField warp( const VectorField& v, VectorField& map );
 
 //ScalarField dot( const VectorField& e1, const VectorField& e2 );
 //VectorField unitvector( const VectorField& e );
-//VectorField identity();
+VectorField identity();
 //ScalarField xIdentity();
 //ScalarField yIdentity();
 //ScalarField zIdentity();
