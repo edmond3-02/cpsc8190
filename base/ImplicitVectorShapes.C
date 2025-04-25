@@ -18,6 +18,25 @@ const Matrix ConstantVectorVolume::grad( const Vector& P ) const
 	return gradvalue;
 }
 
+// NEGATE
+NegateVectorVolume::NegateVectorVolume( Volume<Vector> * v ):
+	elem(v)
+      {}
+
+NegateVectorVolume::NegateVectorVolume( const VectorField& v ):
+	elem(v)
+      {}
+
+const Vector NegateVectorVolume::eval( const Vector& P ) const
+{
+	return -elem->eval(P);
+}
+
+const Matrix NegateVectorVolume::grad( const Vector& P ) const
+{
+	return -elem->grad(P);
+}
+
 // ADD
 AddVectorVolume::AddVectorVolume( const VectorField& v1, const VectorField& v2 ) :
       elem1(v1),
@@ -47,6 +66,33 @@ const Vector SubtractVectorVolume::eval( const Vector& P ) const
 const Matrix SubtractVectorVolume::grad( const Vector& P ) const
 {
 	return  elem1->grad(P) - elem2->grad(P);
+}
+
+
+MultiplyVectorVolume::MultiplyVectorVolume( Volume<Vector> * v, const float a ):
+	elem(v),
+	constant(a)
+      {}
+  
+MultiplyVectorVolume::MultiplyVectorVolume( Volume<Vector> * v, Volume<float>* u ):
+	elem(v),
+	factor(u)
+      {}
+
+MultiplyVectorVolume::MultiplyVectorVolume( const VectorField& v, const float a ):
+	elem(v),
+	constant(a)
+      {}
+  
+MultiplyVectorVolume::MultiplyVectorVolume( const VectorField& v, const ScalarField& u ):
+	elem(v),
+	factor(u)
+      {}
+
+const Vector MultiplyVectorVolume::eval( const Vector& P ) const
+{
+	if(factor != nullptr) return elem->eval(P) * factor->eval(P);
+	else return elem->eval(P) * constant;
 }
 
 IdentityVectorVolume::IdentityVectorVolume() :

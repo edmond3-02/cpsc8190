@@ -44,6 +44,36 @@ class ConstantVectorVolume : public Volume<Vector>
     Matrix gradvalue;
 };
 
+class NegateVectorVolume : public Volume<Vector> 
+ {
+   public:
+  
+     NegateVectorVolume( Volume<Vector> * v ) ;
+  
+     NegateVectorVolume( const VectorField& v ) ;
+  
+     ~NegateVectorVolume(){}
+  
+  
+     const Vector eval( const Vector& P ) const;
+  
+     const Matrix grad( const Vector& P ) const;
+  
+  
+     virtual std::string typelabel() 
+     { 
+        std::string lbl = "Negate";
+        lbl = lbl + "(";
+        lbl = lbl + elem->typelabel();
+        lbl = lbl + ")";
+        return lbl;
+     }
+  
+   private:
+  
+     VectorField elem;
+ };
+
 class AddVectorVolume : public Volume<Vector> 
 {
   public:
@@ -106,6 +136,46 @@ class SubtractVectorVolume : public Volume<Vector>
    private:
    
      VectorField elem1, elem2;
+ };
+
+class MultiplyVectorVolume : public Volume<Vector> 
+ {
+   public:
+  
+     MultiplyVectorVolume( Volume<Vector> * v, const float a );
+  
+     MultiplyVectorVolume( Volume<Vector> * v, Volume<float>* u );
+  
+     MultiplyVectorVolume( const VectorField& v, const float a );
+  
+     MultiplyVectorVolume( const VectorField& v, const ScalarField& u );
+  
+  
+     ~MultiplyVectorVolume(){}
+  
+  
+     const Vector eval( const Vector& P ) const;
+  
+     //const Matrix grad( const Vector& P ) const;
+  
+  
+     virtual std::string typelabel() 
+     { 
+        std::string lbl = "Multiply";
+        lbl = lbl + "(";
+        lbl = lbl + elem->typelabel();
+        lbl = lbl + ",";
+        lbl = lbl + factor->typelabel();
+        lbl = lbl + ")";
+        return lbl;
+     }
+  
+  
+   private:
+  
+     VectorField elem;
+     ScalarField factor;
+     float constant;
  };
 
 class IdentityVectorVolume : public Volume<Vector> 
@@ -288,12 +358,49 @@ class NoiseVectorVolume : public Volume<Vector>
     NoiseMachine noise;
     float dx;
 };
-/*
+
+//class BFECCAdvectVectorVolume : public Volume<Vector> 
+//{
+//  public:
+//
+//    BFECCAdvectVectorVolume( Volume<Vector>* v, Volume<Vector>* u, const float dt, const int nb = 1 )  
+//    {
+//       if( nb == 0 )
+//       {
+//      elem = VectorField( new AdvectVectorVolume( v, u, dt )  );
+//       }
+//       else
+//       {
+//          Volume<Vector>* advected = new BFECCAdvectVectorVolume( v, u, dt, nb-1 );
+//      Volume<Vector>* negu = new NegateVectorVolume( u );
+//      Volume<Vector>* backadvected = new BFECCAdvectVectorVolume( advected, negu, dt, nb-1 );
+//      Volume<Vector>* error = new MultiplyVectorVolume( new SubtractVectorVolume( v, backadvected ) , 0.5);
+//      advected = new AddVectorVolume( advected, error );
+//      elem = VectorField(advected);
+//       }
+//    }
+// 
+//   ~BFECCAdvectVectorVolume(){}
+// 
+//    const Vector eval( const Vector& P ) const 
+//    {
+//       return elem->eval(P);
+//    }
+// 
+//    const Matrix grad( const Vector& P ) const
+//    {
+//       return elem->grad(P); 
+//    }
+// 
+//  private:
+// 
+//    VectorField elem;
+//};
 class BFECCAdvectVectorVolume : public Volume<Vector> 
 {
   public:
- 
-    BFECCAdvectVectorVolume( Volume<Vector>* v, Volume<Vector>* u, const float dt, const int nb = 1 )  
+
+    BFECCAdvectVectorVolume( VectorField v, VectorField u, const float dt, const int nb = 1 )  
     {
        if( nb == 0 )
        {
@@ -301,12 +408,12 @@ class BFECCAdvectVectorVolume : public Volume<Vector>
        }
        else
        {
-          Volume<Vector>* advected = new BFECCAdvectVectorVolume( v, u, dt, nb-1 );
-      Volume<Vector>* negu = new NegateVectorVolume( u );
-      Volume<Vector>* backadvected = new BFECCAdvectVectorVolume( advected, negu, dt, nb-1 );
-      Volume<Vector>* error = new MultiplyVectorVolume( new SubtractVectorVolume( v, backadvected ) , 0.5);
-      advected = new AddVectorVolume( advected, error );
-      elem = VectorField(advected);
+          VectorField advected = VectorField(new BFECCAdvectVectorVolume( v, u, dt, nb-1 ));
+      VectorField negu = VectorField(new NegateVectorVolume( u ));
+      VectorField backadvected = VectorField(new BFECCAdvectVectorVolume( advected, negu, dt, nb-1 ));
+      VectorField error = VectorField(new MultiplyVectorVolume( new SubtractVectorVolume( v, backadvected ) , 0.5));
+      advected = VectorField(new AddVectorVolume( advected, error ));
+      elem = advected;
        }
     }
  
@@ -326,7 +433,7 @@ class BFECCAdvectVectorVolume : public Volume<Vector>
  
     VectorField elem;
 };
-*/
+
 class GriddedSGridVectorVolume : public Volume<Vector> 
 {
   public:

@@ -351,21 +351,23 @@ const float GammaVolume::eval( const Vector& P ) const
 	return (factor == nullptr) ? std::pow(elem->eval(P), gamma) : std::pow(elem->eval(P), factor->eval(P));
 }
 
-BlinnBlendVolume::BlinnBlendVolume( Volume<float> * v1, Volume<float> * v2, const float _alpha) :
+BlinnBlendVolume::BlinnBlendVolume( Volume<float> * v1, Volume<float> * v2, const float _alpha1, const float _alpha2) :
         elem1(v1),
         elem2(v2),
-        alpha(_alpha)
+        a1(_alpha1),
+	a2(_alpha2)
       {}
   
- BlinnBlendVolume::BlinnBlendVolume( const ScalarField& v1, const ScalarField& v2, const float _alpha) :
+ BlinnBlendVolume::BlinnBlendVolume( const ScalarField& v1, const ScalarField& v2, const float _alpha1, const float _alpha2) :
         elem1(v1),
         elem2(v2),
-        alpha(_alpha)
+        a1(_alpha1),
+	a2(_alpha2)
       {}
  
 const float BlinnBlendVolume::eval( const Vector& P ) const
 {
-	return std::exp(alpha * elem1->eval(P)) + std::exp(alpha * elem2->eval(P));
+	return std::exp(a1 * elem1->eval(P)) + std::exp(a2 * elem2->eval(P)) - 2;
 }
  
 const float UnionVolume::eval( const Vector& P ) const
@@ -515,4 +517,23 @@ const Vector WarpVolume::grad(  const Vector& P ) const
 	Vector X = mapX->eval(P);
 	Matrix gX = mapX->grad(P);
 	return gX * elem->grad(X);
+}
+
+SwitchVolume::SwitchVolume( Volume<float>* v1, Volume<float>* v2, Volume<float>* swtch ):
+	elem1(v1),
+	elem2(v2),
+	swtchelem(swtch)
+      {}
+
+SwitchVolume::SwitchVolume( const ScalarField& v1, const ScalarField& v2, const ScalarField& swtch ):
+	elem1(v1),
+	elem2(v2),
+	swtchelem(swtch)
+      {}
+
+const float SwitchVolume::eval( const Vector& P ) const
+{
+	float e1 = elem1->eval(P);
+	float e2 = elem2->eval(P);
+	return e1 + (e2 - e1) * swtchelem->eval(P);
 }

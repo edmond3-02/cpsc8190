@@ -236,8 +236,26 @@ ScalarField RayMarchDSMAccumulation( 	const RenderData* d,
 			#pragma omp parallel for
 			for(int k=0; k<dsmField->nz(); k++)
 			{
-				double arg = 0.0;
+
 				Vector X = dsmField->evalP(i,j,k);
+
+				// skippable
+				bool inBounds = d->boundingBoxes.empty();
+				for(int box=0; box<d->boundingBoxes.size(); box++)
+				{
+					if(d->boundingBoxes[box]->isInside(X))
+					{
+						inBounds = true;
+						break;
+					}
+				}
+				if(!inBounds)
+				{
+					continue;
+				}
+				// end skippable
+
+				double arg = 0.0;
 				if( densityField->eval(X) > 0.0)
 				{
 					double smax = (lightPosition-X).magnitude();

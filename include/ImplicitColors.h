@@ -14,17 +14,12 @@ class ConstantColor : public Volume<Color>
 {
   public:
 
-    ConstantColor( const Color& v ) :
-       value (v)
-    {}
+    ConstantColor( const Color& v );
 
    ~ConstantColor(){}
 
 
-    const Color eval( const Vector& P ) const 
-    {
-       return value; 
-    }
+    const Color eval( const Vector& P ) const;
 
 
     virtual std::string typelabel() 
@@ -44,23 +39,14 @@ class MultiplyColorScalar : public Volume<Color>
 {
   public:
 
-    MultiplyColorScalar( Volume<Color> * e, Volume<float>* v ) :
-      elem1(e),
-      elem2(v)
-    {}
+    MultiplyColorScalar( Volume<Color> * e, Volume<float>* v );
 
-    MultiplyColorScalar( const ColorField& e, const ScalarField& v ) :
-      elem1(e),
-      elem2(v)
-    {}
+    MultiplyColorScalar( const ColorField& e, const ScalarField& v );
 
    ~MultiplyColorScalar(){}
 
 
-    const Color eval( const Vector& P ) const 
-    {
-       return ( elem1->eval(P) * elem2->eval(P) ); 
-    }
+    const Color eval( const Vector& P ) const;
 
 
     virtual std::string typelabel() 
@@ -89,23 +75,14 @@ class AddColor : public Volume<Color>
 {
   public:
 
-    AddColor( Volume<Color> * e, Volume<Color>* v ) :
-      elem1(e),
-      elem2(v)
-    {}
+    AddColor( Volume<Color> * e, Volume<Color>* v );
 
-    AddColor( const ColorField& e, const ColorField& v ) :
-      elem1(e),
-      elem2(v)
-    {}
+    AddColor( const ColorField& e, const ColorField& v );
 
    ~AddColor(){}
 
 
-    const Color eval( const Vector& P ) const 
-    {
-       return ( elem1->eval(P) + elem2->eval(P) ); 
-    }
+    const Color eval( const Vector& P ) const;
 
 
     virtual std::string typelabel() 
@@ -126,6 +103,42 @@ class AddColor : public Volume<Color>
 
 
 
+class SwitchColorVolume : public Volume<Color>
+ {
+   public:
+  
+    SwitchColorVolume( Volume<Color>* v1, Volume<Color>* v2, Volume<float>* swtch );
+  
+    SwitchColorVolume( const ColorField& v1, const ColorField& v2, const ScalarField& swtch );
+  
+    ~SwitchColorVolume(){}
+  
+    const Color eval( const Vector& P ) const;
+    
+    //const Vector grad( const Vector& P ) const;
+    
+    virtual std::string typelabel() 
+    { 
+       std::string lbl = "Switch";
+       lbl = lbl + "(";
+       lbl = lbl + elem1->typelabel();
+       lbl = lbl + ",";
+       lbl = lbl + elem2->typelabel();
+       lbl = lbl + ",";
+       lbl = lbl + swtchelem->typelabel();
+       lbl = lbl + ")";
+       return lbl;
+    }
+  
+  
+   private:
+  
+    const ColorField elem1;
+    const ColorField elem2;
+    const ScalarField swtchelem;
+  
+  
+ };
 
 
 

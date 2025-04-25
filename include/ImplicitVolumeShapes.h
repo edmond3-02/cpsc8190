@@ -548,9 +548,9 @@ class BlinnBlendVolume : public Volume<float>
  {
    public:
   
-     BlinnBlendVolume( Volume<float> * v1, Volume<float> * v2, const float _alpha = 1.0 );
+     BlinnBlendVolume( Volume<float> * v1, Volume<float> * v2, const float _alpha1 = 1.0, const float _alpha2 = 1.0 );
   
-     BlinnBlendVolume( const ScalarField& v1, const ScalarField& v2, const float _alpha = 1.0 );
+     BlinnBlendVolume( const ScalarField& v1, const ScalarField& v2, const float _alpha1 = 1.0, const float _alpha2 = 1.0 );
   
   
      ~BlinnBlendVolume(){}
@@ -558,7 +558,7 @@ class BlinnBlendVolume : public Volume<float>
   
      const float eval( const Vector& P ) const;
  
-     void setAlpha(const float a) { alpha = a; }
+     void setAlpha(const float _a1, const float _a2 ) { a1 = _a1; a2 = _a2;}
  
      //const Vector grad(  const Vector& P ) const;
   
@@ -576,7 +576,7 @@ class BlinnBlendVolume : public Volume<float>
    protected:
   
      const ScalarField elem1, elem2;
-     float alpha;
+     float a1, a2;
  };
 
 class UnionVolume : public Volume<float> 
@@ -830,6 +830,43 @@ class WarpVolume : public Volume<float>
     const ScalarField elem;
     VectorField mapX;
 };
+
+class SwitchVolume : public Volume<float>
+ {
+   public:
+  
+    SwitchVolume( Volume<float>* v1, Volume<float>* v2, Volume<float>* swtch );
+  
+    SwitchVolume( const ScalarField& v1, const ScalarField& v2, const ScalarField& swtch );
+  
+    ~SwitchVolume(){}
+  
+    const float eval( const Vector& P ) const;
+    
+    //const Vector grad( const Vector& P ) const;
+    
+    virtual std::string typelabel() 
+    { 
+       std::string lbl = "Switch";
+       lbl = lbl + "(";
+       lbl = lbl + elem1->typelabel();
+       lbl = lbl + ",";
+       lbl = lbl + elem2->typelabel();
+       lbl = lbl + ",";
+       lbl = lbl + swtchelem->typelabel();
+       lbl = lbl + ")";
+       return lbl;
+    }
+  
+  
+   private:
+  
+    const ScalarField elem1;
+    const ScalarField elem2;
+    const ScalarField swtchelem;
+  
+  
+ };
 
 }
 
